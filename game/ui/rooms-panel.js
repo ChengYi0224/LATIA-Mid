@@ -37,7 +37,7 @@ export function initRoomsPanel(ctx, root) {
         bus.emit([{ type: 'ui_open_puzzle', puzzle: p.id }]);
       } else {
         const clues = content.rooms.list.flatMap((r) => r.clues).filter((c) => c.forPuzzle === p.id);
-        alert('還不能解。相關線索：\n' + (clues.map((c) => `・${c.name}：${c.text}`).join('\n') || '（無）'));
+        alert('還不能解。相關線索：\n' + (clues.map((c) => `・${c.name}：${c.text}`).join('\n') || '沒有'));
       }
     },
   };

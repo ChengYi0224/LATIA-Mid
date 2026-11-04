@@ -90,7 +90,7 @@ export function initWorld(ctx, root) {
   setPanelEl.append(
     el('strong', '', '視角設定'),
     sliderRow('視角靈敏度', 'sens', 0.2, 3, 0.1, (v) => `${v.toFixed(1)}x`),
-    sliderRow('視野（FOV）', 'fov', 60, 100, 1, (v) => `${v}°`),
+    sliderRow('視野 FOV', 'fov', 60, 100, 1, (v) => `${v}°`),
     el('p', 'wd-shint', '覺得頭暈就把視野調小、靈敏度調低。'),
     closeSettingsBtn,
   );
@@ -114,7 +114,7 @@ export function initWorld(ctx, root) {
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   } catch (err) {
-    stage.append(el('div', 'wd-nogl', '這個瀏覽器開不了 3D（WebGL）。請換 Chrome、Edge 或 Firefox 再試。'));
+    stage.append(el('div', 'wd-nogl', '這個瀏覽器開不了 3D。請換 Chrome、Edge 或 Firefox 再試。'));
     console.error(err);
     return;
   }

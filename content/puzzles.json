@@ -260,7 +260,7 @@
         {
           "id": "login",
           "type": "code",
-          "prompt": "輸入你的密碼。（你所有的密碼都設成同一組。）",
+          "prompt": "輸入你的密碼。你所有的密碼都設成同一組。",
           "answer": "5861",
           "checks": [
             { "id": "remember", "label": "記住帳號", "setsFlag": "p7_remembered" }

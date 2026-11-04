@@ -2,9 +2,12 @@
 
 ## 美術與音效
 
-目前所有美術和音效都是程式合成，**沒有使用任何外部素材**：
+外部素材只有 three.js 和 6 組 CC0 貼圖，其餘都是程式畫的或合成的：
 
-- 地圖、角色、物件、死因卡圖、結局圖：用 Canvas 與 CSS 畫的色塊與像素圖形（見 `game/ui/assets.js`）。
+- three.js r170：MIT 授權，放在 `vendor/three.min.js`，作者 mrdoob 與 three.js 作者群，https://threejs.org 。
+- 牆、地板、木頭、金屬、布料、水泥的貼圖：Poly Haven（https://polyhaven.com ），CC0，逐項來源在 `assets/LICENSES.md`。
+- 3D 物件：程式用基本幾何體拼的，沒有外部模型（見 `game/ui/world3d/models.js`）。
+- 死因卡圖、結局圖：用 Canvas 與 CSS 畫的色塊與像素圖形。
 - 假 Moodle 畫面（含貓頭鷹校徽）：用 CSS 與內嵌 SVG 畫的，不是任何真實網站的檔案。
 - 4 個 8-bit 音效：用瀏覽器的 Web Audio 即時合成（見 `game/ui/audio.js`），沒有音檔。
 - 沒有使用外部字型，也沒有 CDN。

@@ -1,6 +1,7 @@
 // 6 種 stage type 的通用謎題介面（WP3），p7 的 Moodle 皮在 moodle.js（WP4）。
 // 監聽 ui_open_puzzle 打開；送 PUZZLE 動作給核心，依 wrong／stage／solved／death 事件更新。
 import { createMoodle } from './moodle.js';
+import { skinFor } from './skins.js';
 import { initInput, wheelStep, seqPush, seqUndo, seqClear, toggleSwitch, setField, canSubmit, toValue } from './logic.js';
 
 const CLOSE_ON = ['death', 'new_run', 'ending', 'finale'];
@@ -17,6 +18,10 @@ export function initPuzzles(ctx, root) {
   mlink.rel = 'stylesheet';
   mlink.href = new URL('./moodle.css', import.meta.url).href;
   document.head.append(mlink);
+  const slink = document.createElement('link');   // 每個謎題的專屬版面（skins.js）
+  slink.rel = 'stylesheet';
+  slink.href = new URL('./skins.css', import.meta.url).href;
+  document.head.append(slink);
 
   let pid = null;          // 目前打開的謎題
   let stageKey = '';       // 用來判斷步驟換了就重設輸入
@@ -63,7 +68,16 @@ export function initPuzzles(ctx, root) {
   });
   for (const t of CLOSE_ON) bus.on(t, close);
   bus.on('_flush', render);
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && pid) { close(); render(); } });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && pid) { close(); render(); return; }
+    // 數字鍵 1–9 選第幾個選項（輸入框裡打字時不搶）
+    if (pid && /^[1-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const t = e.target;
+      if (t instanceof HTMLElement && (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName))) return;
+      const b = root.querySelector(`[data-num="${e.key}"]`);
+      if (b && !b.disabled) { e.preventDefault(); b.click(); }
+    }
+  });
 
   const submit = () => {
     const stage = game.currentStage(pid);
@@ -157,6 +171,7 @@ export function initPuzzles(ctx, root) {
   function render() {
     if (!dirty) return;
     dirty = false;
+    const keepFocus = root.contains(document.activeElement) ? document.activeElement?.dataset?.fid : null;
     root.innerHTML = '';
     if (!pid) return;
     if (pid === 'p7' && !done) {   // p7 換成假 Moodle 皮
@@ -183,14 +198,24 @@ export function initPuzzles(ctx, root) {
       const key = `${pid}:${stage.id}`;
       if (key !== stageKey) { stageKey = key; input = initInput(stage); }
       head.append(el('span', 'pz-step-no', `第 ${idx + 1} / ${p.stages.length} 步`));
-      card.append(el('p', 'pz-prompt', stage.prompt));
       const body = el('div', 'pz-body pzt-' + stage.type);
-      (bodies[stage.type] || bodies.choice)(stage, body);
+      const skin = skinFor(pid, idx);
+      let own = false;
+      if (skin) {
+        card.classList.add('pz-skin', `pz-skin-${pid}`);
+        const api = {
+          el, button, input, send, pid, submit, content, redo: () => { dirty = true; render(); },
+          wheelStep, seqPush, seqUndo, seqClear, toggleSwitch, setField, canSubmit,
+        };
+        own = !!skin(stage, body, api)?.ownPrompt;
+      } else (bodies[stage.type] || bodies.choice)(stage, body);
+      if (!own) card.append(el('p', 'pz-prompt', stage.prompt));
       card.append(body);
       if (note) card.append(el('div', 'pz-note ' + note.cls, note.text));
     }
     const overlay = el('div', 'pz-overlay');
     overlay.append(card);
     root.append(overlay);
+    if (keepFocus) root.querySelector(`[data-fid="${keepFocus.replace(/"/g, '\\"')}"]`)?.focus({ preventScroll: true });
   }
 }

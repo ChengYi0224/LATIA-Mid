@@ -1,7 +1,7 @@
 // 開場、死因卡、圖鑑、結局、結算畫面（WP5）。
 // 監聽 new_run / death / retry / finale / ending 事件；只讀狀態、只送動作。
 // 任何畫面顯示期間：蓋住全畫面、擋掉鍵盤，玩家不能做別的事。
-import { makeArt } from './art.js';
+import { iconNode } from './death-icons.js';
 import { typeDuration, TYPE_MS } from '../flavor-logic.js';
 import { codexCells, deathCardData, deathEventFromState, resultRows, isFreshState, pad2 } from './logic.js';
 
@@ -107,7 +107,7 @@ export function initScreens(ctx, root) {
       clearTimeout(timer);
       const wrap = el('div', 'sc-note-wrap sc-fade');
       const note = el('div', 'sc-note');
-      note.append(el('div', '', ev.tutorialNote), el('small', '', '（學長留的便利貼）'));
+      note.append(el('div', '', ev.tutorialNote), el('small', '', '學長留的便利貼'));
       wrap.append(note, button('知道了', close, 'primary'));
       node.className = 'sc-overlay';
       node.replaceChildren(wrap);
@@ -179,7 +179,7 @@ export function initScreens(ctx, root) {
     const no = el('div', 'no');
     no.append(el('span', '', `圖鑑 No.${data.noText} / ${data.total}`), el('span', '', `已收集 ${data.found}`));
     const artBox = el('div', 'art-box');
-    artBox.append(makeArt(d.art));
+    artBox.append(iconNode(d.art));
     const big = el('div', 'big', '');
     card.append(no, artBox, el('div', 'ttl', d.title), big);
     const chars = [...d.text];
@@ -195,7 +195,7 @@ export function initScreens(ctx, root) {
     const cost = el('div', 'cost');
     cost.append(el('span', '', content.texts.deathTimeCost), el('span', '', `現在 ${data.clock}`));
     if (data.senpai) card.append(el('div', 'sc-senpai', data.senpai));
-    card.append(cost, el('div', 'retry', `${content.texts.deathCardRetry}（點一下）`));
+    card.append(cost, el('div', 'retry', content.texts.deathCardRetry));
     node.append(card);
 
     // 剛出現的半秒內不吃點擊，避免連點直接跳過
@@ -232,7 +232,7 @@ export function initScreens(ctx, root) {
     for (const c of cells) {
       const b = el('button', 'sc-cell ' + (c.found ? 'on' : 'off'));
       b.type = 'button';
-      b.append(el('span', 'n', `No.${pad2(c.no)}${c.kind === 'ending' ? '　結局' : ''}`), makeArt(c.art, { silhouette: !c.found }));
+      b.append(el('span', 'n', `No.${pad2(c.no)}${c.kind === 'ending' ? '　結局' : ''}`), (() => { const box = el('span', 'cell-art'); box.append(iconNode(c.art, { silhouette: !c.found })); return box; })());
       b.append(el('span', 't' + (c.kind === 'ending' && c.found ? ' end' : ''), c.found ? c.title : '？？？'));
       b.addEventListener('click', () => {
         selBtn?.classList.remove('sel');
@@ -280,7 +280,7 @@ export function initScreens(ctx, root) {
     const node = el('div', 'sc-overlay sc-ending');
     const wrap = el('div', 'art-wrap');
     if (ev.isNew) wrap.append(el('div', 'sc-stamp', 'NEW'));
-    wrap.append(makeArt(en.art));
+    wrap.append(iconNode(en.art));
     const lines = el('div', 'lines');
     en.lines.forEach((t, i) => {
       const p = el('p', '', t);

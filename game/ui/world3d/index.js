@@ -5,6 +5,7 @@ import { MAPS, TILE } from '../maps.js';
 import { move, doorAt, doorAction, doorFront, spawnFor, resolveObject, planInteraction, blockedText } from '../world/logic.js';
 import { WALK_SPEED, TURN_SPEED, AIM_REACH, applyLook, walkVector, aimedObject, spawnYaw, clamp } from './fps-logic.js';
 import { promptFor, farText } from './prompt-logic.js';
+import { panelFor, quotaLine, resultFromEvent, buttonIndexForKey } from './panel-logic.js';
 import { buildRoom } from './room3d.js';
 import { createStyle } from './style/index.js';
 import { setStyle } from './kit.js';
@@ -270,32 +271,64 @@ export function initWorld(ctx, root) {
   gear.addEventListener('click', () => (settingsOpen ? closeSettings() : openSettings()));
   closeSettingsBtn.addEventListener('click', closeSettings);
 
-  // ---------- 對話框（彩蛋、線索） ----------
+  // ---------- 互動面板（線索、彩蛋、手機、AI 助教、門、還不能解的關卡） ----------
+  // 內容與按鈕由 panel-logic.js 決定；按鈕可滑鼠點、Tab／Enter、數字鍵，Esc 取消。
   function closeModal() {
     if (!modal) return;
     modal.node.remove();
     modal = null;
     wrap.focus({ preventScroll: true });
   }
-  function openModal({ title, text, buttons }) {
+  function setPanelResult(text) {
+    if (!modal || !text) return;
+    modal.result.textContent = text;
+    modal.result.hidden = false;
+    if (modal.meta) modal.meta.textContent = quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0);
+  }
+  function pressPanelButton(b) {
+    if (b.stay) {
+      if (b.action) send(b.action); // 結果由 message／hint 事件顯示在面板裡
+      else setPanelResult(b.result);
+      return;
+    }
+    closeModal();
+    if (b.action) send(b.action);
+    tryLock(); // 點按鈕算使用者操作，順便把滑鼠鎖回來
+  }
+  function openPanel(def) {
     closeModal();
     if (locked()) document.exitPointerLock();
     const node = el('div', 'wd-modal');
     const card = el('div', 'wd-card');
-    card.append(el('strong', '', title), el('p', '', text));
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-label', def.title);
+    const head = el('div', 'wd-card-head');
+    if (def.kicker) head.append(el('span', 'wd-kicker', def.kicker));
+    head.append(el('strong', '', def.title));
+    card.append(head, el('p', '', def.text));
+    const meta = def.meta ? el('div', 'wd-meta', def.meta) : null;
+    if (meta) card.append(meta);
+    const result = el('div', 'wd-result');
+    result.hidden = true;
+    result.setAttribute('role', 'status');
+    card.append(result);
     const row = el('div', 'wd-row');
-    for (const b of buttons) {
-      const btn = el('button', b.cls || '', b.label);
+    const btns = def.buttons.map((b, i) => {
+      const btn = el('button', b.primary ? 'primary' : '');
       btn.type = 'button';
-      btn.addEventListener('click', () => { closeModal(); b.fn?.(); tryLock(); }); // 點按鈕算使用者操作，順便把滑鼠鎖回來
+      btn.append(el('kbd', '', String(i + 1)), document.createTextNode(` ${b.label}`));
+      btn.addEventListener('click', () => pressPanelButton(b));
       row.append(btn);
-    }
-    card.append(row);
+      return btn;
+    });
+    card.append(row, el('div', 'wd-card-foot', `數字鍵或 Tab／Enter 選擇　Esc 取消`));
     node.append(card);
     stage.append(node);
-    modal = { node };
+    modal = { node, result, meta, def, btns };
     keys.clear();
-    row.lastElementChild.focus({ preventScroll: true }); // 預設停在最後一顆（算了／關閉），不會手滑
+    // 有風險的選項（彩蛋、門）預設停在「算了」；其他停在第一顆
+    const fi = def.buttons.findIndex((b) => b.focus);
+    btns[fi >= 0 ? fi : 0].focus({ preventScroll: true });
   }
 
   // ---------- 互動：和 rooms-panel 清單點同一個物件送一樣的動作 ----------
@@ -310,19 +343,10 @@ export function initWorld(ctx, root) {
     refreshLabels();
     kickUntil = performance.now() + 100;
     try { navigator.vibrate?.(30); } catch { /* 不支援就算了 */ }
-    if (res.kind === 'clue') showToast(`記下來了：${res.clue.name}`);
     stage.classList.remove('wd-hit'); void stage.offsetWidth; stage.classList.add('wd-hit');
     clearTimeout(hitTimer); hitTimer = setTimeout(() => stage.classList.remove('wd-hit'), 500);
-    if (plan.do === 'send') send(plan.action);
-    else if (plan.do === 'open_puzzle') bus.emit([{ type: 'ui_open_puzzle', puzzle: plan.puzzle }]);
-    else if (plan.do === 'text') openModal({ title: plan.title, text: plan.text, buttons: [{ label: '關閉', cls: 'primary' }] });
-    else if (plan.do === 'egg') {
-      const e = plan.egg;
-      openModal({
-        title: e.name, text: e.look,
-        buttons: [{ label: e.actionLabel, fn: () => send({ type: 'EGG', egg: e.id }) }, { label: '算了', cls: 'primary' }],
-      });
-    }
+    if (plan.do === 'open_puzzle') bus.emit([{ type: 'ui_open_puzzle', puzzle: plan.puzzle }]);
+    else openPanel(panelFor(res, plan, { game, content }));
   }
 
   // ---------- 鍵盤與滑鼠 ----------
@@ -334,7 +358,15 @@ export function initWorld(ctx, root) {
     if (e.ctrlKey || e.metaKey || e.altKey || typing(e.target)) return;
     if (settingsOpen) { if (e.key === 'Escape') { closeSettings(); e.preventDefault(); } return; }
     if (modal) {
-      if (e.key === 'Escape') { closeModal(); e.preventDefault(); }
+      if (e.key === 'Escape') { closeModal(); e.preventDefault(); return; }
+      const bi = buttonIndexForKey(e.key, modal.def.buttons.length);
+      if (bi >= 0) { e.preventDefault(); pressPanelButton(modal.def.buttons[bi]); return; }
+      if (e.key === 'Tab') { // 焦點只在面板的按鈕之間轉
+        e.preventDefault();
+        const n = modal.btns.length;
+        const cur = modal.btns.indexOf(document.activeElement);
+        modal.btns[(cur + (e.shiftKey ? n - 1 : 1)) % n].focus({ preventScroll: true });
+      }
       return;
     }
     if (paused()) return;
@@ -382,7 +414,9 @@ export function initWorld(ctx, root) {
   bus.on('solved', () => screenFlash('ok'));
   bus.on('wrong', () => screenFlash('bad'));
   bus.on('blocked', (ev) => { showToast(blockedText(ev, content)); kickUntil = performance.now() + 220; });
-  bus.on('message', (ev) => { if (!overlayOpen()) showToast(ev.text); });
+  bus.on('message', (ev) => { if (modal) setPanelResult(resultFromEvent(ev)); else if (!overlayOpen()) showToast(ev.text); });
+  bus.on('hint', (ev) => setPanelResult(resultFromEvent(ev)));
+  bus.on('finale_locked', (ev) => setPanelResult(resultFromEvent(ev)));
   bus.on('death', closeModal);
   bus.on('ending', closeModal);
   // 新的一局：就算還在同一個房間，也要回到起點（不然會接著站在上一局的位置）

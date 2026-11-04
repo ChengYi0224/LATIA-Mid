@@ -5,67 +5,111 @@
       "id": "r401",
       "name": "401 專題教室",
       "requires": {},
-      "exits": ["hall"],
+      "exits": [
+        "hall"
+      ],
       "clues": [
-        { "id": "c_exam_calc", "name": "揉爛的考卷（微積分）", "text": "微積分期中考，10/14，58 分。", "forPuzzle": "p1" },
-        { "id": "c_exam_stat", "name": "揉爛的考卷（統計）", "text": "統計期中考，10/21，61 分。", "forPuzzle": "p1" },
-        { "id": "c_laptop_note", "name": "螢幕背面的便利貼", "text": "密碼＝這學期期中考的兩科分數，照考試日期排。", "forPuzzle": "p1" },
-        { "id": "c_whiteboard", "name": "白板角落", "text": "值日生：講桌密碼＝老師口頭禪。", "forPuzzle": "p2" },
-        { "id": "c_syllabus", "name": "課綱", "text": "每一頁的頁尾都蓋著同一個章：「遲交不收」。", "forPuzzle": "p2" }
+        {
+          "id": "c_exam_calc",
+          "name": "揉爛的考卷（微積分）",
+          "text": "微積分期中考，10/14，58 分。",
+          "forPuzzle": "p1"
+        },
+        {
+          "id": "c_exam_stat",
+          "name": "揉爛的考卷（統計）",
+          "text": "統計期中考，10/21，61 分。",
+          "forPuzzle": "p1"
+        },
+        {
+          "id": "c_laptop_note",
+          "name": "螢幕背面的便利貼",
+          "text": "密碼＝這學期期中考的兩科分數，照考試日期排。",
+          "forPuzzle": "p1"
+        },
+        {
+          "id": "c_whiteboard",
+          "name": "白板角落",
+          "text": "值日生：講桌密碼＝老師口頭禪。",
+          "forPuzzle": "p2"
+        },
+        {
+          "id": "c_syllabus",
+          "name": "課綱",
+          "text": "每一頁的頁尾都蓋著同一個章：「遲交不收」。",
+          "forPuzzle": "p2"
+        }
       ]
     },
     {
       "id": "hall",
       "name": "四樓走廊",
-      "requires": { "items": ["key_backdoor"] },
-      "exits": ["r401", "pantry", "r503", "office", "lab", "floor1"],
+      "requires": {
+        "items": [
+          "key_backdoor"
+        ]
+      },
+      "exits": [
+        "r401",
+        "r503"
+      ],
       "clues": [
-        { "id": "c_floorplan", "name": "逃生平面圖", "text": "從 401 到茶水間，會經過第 2、3、5 段走廊。", "forPuzzle": "p3" },
-        { "id": "c_plaque", "name": "系館匾額", "text": "本館於西元 1987 年落成。", "forPuzzle": "p6" }
-      ]
-    },
-    {
-      "id": "pantry",
-      "name": "茶水間",
-      "requires": { "puzzles": ["p3"] },
-      "exits": ["hall"],
-      "clues": [
-        { "id": "c_pantry_board", "name": "茶水間白板", "text": "學長畫的四罐飲料：咖啡、咖啡、紅茶、能量飲。旁邊寫「卡住的東西這樣按會掉出來」。", "forPuzzle": "p4" }
+        {
+          "id": "c_floorplan",
+          "name": "逃生平面圖",
+          "text": "從 401 到茶水間，會經過第 2、3、5 段走廊。",
+          "forPuzzle": "p3"
+        },
+        {
+          "id": "c_plaque",
+          "name": "系館匾額",
+          "text": "本館於西元 1987 年落成。",
+          "forPuzzle": "p6"
+        },
+        {
+          "id": "c_pantry_board",
+          "name": "茶水間白板",
+          "text": "學長畫的四罐飲料：咖啡、咖啡、紅茶、能量飲。旁邊寫「卡住的東西這樣按會掉出來」。",
+          "forPuzzle": "p4"
+        },
+        {
+          "id": "c_trash_notice",
+          "name": "垃圾桶裡的公告草稿",
+          "text": "本月門禁密碼改為系館落成年份（西元）。",
+          "forPuzzle": "p6"
+        },
+        {
+          "id": "c_broadcast_manual",
+          "name": "廣播台使用說明",
+          "text": "頻道：全館／一樓／五樓。夜間請用小音量。",
+          "forPuzzle": "p8"
+        },
+        {
+          "id": "c_guard",
+          "name": "一樓警衛室的監視器",
+          "text": "螢幕上：伯伯抱著鐵捲門遙控器睡得很熟。桌上有一張早餐店的集點卡。",
+          "forPuzzle": "p8"
+        }
       ]
     },
     {
       "id": "r503",
       "name": "503 研究室",
-      "requires": { "items": ["key_503"] },
-      "exits": ["hall"],
+      "requires": {
+        "items": [
+          "key_503"
+        ]
+      },
+      "exits": [
+        "hall"
+      ],
       "clues": [
-        { "id": "c_sleeptalk", "name": "說夢話的阿哲", "text": "「演算法……第三版……作業系統……資料庫……網路……」", "forPuzzle": "p5" }
-      ]
-    },
-    {
-      "id": "office",
-      "name": "系辦",
-      "requires": { "puzzles": ["p5"] },
-      "exits": ["hall"],
-      "clues": [
-        { "id": "c_trash_notice", "name": "垃圾桶裡的公告草稿", "text": "本月門禁密碼改為系館落成年份（西元）。", "forPuzzle": "p6" }
-      ]
-    },
-    {
-      "id": "lab",
-      "name": "電腦教室",
-      "requires": { "puzzles": ["p6"] },
-      "exits": ["hall"],
-      "clues": []
-    },
-    {
-      "id": "floor1",
-      "name": "一樓（廣播室、警衛室、大門）",
-      "requires": { "items": ["key_floor1"] },
-      "exits": ["hall"],
-      "clues": [
-        { "id": "c_broadcast_manual", "name": "廣播台使用說明", "text": "頻道：全館／一樓／五樓。夜間請用小音量。", "forPuzzle": "p8" },
-        { "id": "c_guard", "name": "警衛室", "text": "伯伯抱著鐵捲門遙控器睡得很熟。桌上有一張早餐店的集點卡。", "forPuzzle": "p8" }
+        {
+          "id": "c_sleeptalk",
+          "name": "說夢話的阿哲",
+          "text": "「演算法……第三版……作業系統……資料庫……網路……」",
+          "forPuzzle": "p5"
+        }
       ]
     }
   ]

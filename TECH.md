@@ -277,7 +277,7 @@ game/ui/world/logic.js     格子座標的碰撞、門、互動判定（3D 沿�
 game/ui/world3d/         3D 第一人稱畫面：index.js（視角、輸入、暫停、設定）、room3d.js（蓋房間與燈光）、
                          models.js（物件的 3D 長相）、kit.js（積木工具）、fps-logic.js（視角與準星的純邏輯）、style/（材質與燈光風格）
 vendor/three.min.js      three.js r170（見下）
-game/ui/maps.js          7 個房間的格子地圖、物件位置（WP2）
+game/ui/maps.js          3 個房間的格子地圖、物件位置（WP2）
 game/ui/puzzles/         6 種 stage type 的通用介面（WP3），moodle.js（WP4）
 game/ui/screens/         開場、死因卡、圖鑑、結局、結算（WP5）
 game/ui/hud/             時鐘、任務欄、小地圖、提示、手機未讀、自言自語（WP6）
@@ -328,7 +328,7 @@ game/ui/debug-panel.js   除錯面板（WP8）
 |---|---|---|---|---|---|---|
 | WP0 | 資料、規則核心、測試 | Opus（已完成） | 要整體判斷 | 無 | content/、game/core/ | `npm test` 全過 |
 | WP1 | index.html、main.js、bus.js、房間清單面板、基本 CSS，並幫其他包建好空殼模組 | Sonnet | 第 5～7 節已經寫死了介面 | WP0 | index.html、game/ui/main.js、bus.js、rooms-panel.js、styles | 開 `npm run serve`，console 沒有錯誤；用清單點物件會送出正確的動作 |
-| WP2 | Canvas 地圖、走動、碰撞、靠近物件按 E 互動、7 個房間的格子地圖 | Sonnet | 量大但規格明確 | WP1 | game/ui/world/、maps.js | 7 個房間都走得到、撞牆會停、按 E 觸發的動作跟清單一樣 |
+| WP2 | Canvas 地圖、走動、碰撞、靠近物件按 E 互動、3 個房間的格子地圖 | Sonnet | 量大但規格明確 | WP1 | game/ui/world/、maps.js | 3 個房間都走得到、撞牆會停、按 E 觸發的動作跟清單一樣 |
 | WP3 | 6 種 stage type 的通用謎題介面 | Sonnet | 規格明確 | WP1 | game/ui/puzzles/（moodle.js 除外） | 用 `?debug=1&jump=p1`～`p8` 逐關跳過去，每關都能用資料裡的答案解開；答錯會顯示 wrongMessage |
 | WP4 | 假 Moodle 頁 | Sonnet | 視覺工作量大，但 moodle.json 都寫好了 | WP3 的介面 | game/ui/puzzles/moodle.js、moodle.css | 和使用者給的截圖描述一致；p7 的 6 個死法都點得到 |
 | WP5 | 開場、死因卡、圖鑑頁、結局、結算畫面 | Sonnet | 規格明確 | WP1 | game/ui/screens/ | `?debug=1&death=任一 id` 會出死因卡；`&unlock=all` 圖鑑顯示 44 格；`&ending=` 4 個結局都能看 |
@@ -351,7 +351,7 @@ game/ui/debug-panel.js   除錯面板（WP8）
 
 ## 3D 與 three.js
 
-只換了渲染層，`game/core/`、`content/*.json` 沒動；格子座標、碰撞、門、互動判定還是 `game/ui/world/logic.js` 和 `maps.js`。
+只換了渲染層，`game/core/` 沒動；`content/*.json` 後來只因為房間縮成 3 個（401、走廊、503）而改過房間、關卡所在房間和台詞；格子座標、碰撞、門、互動判定還是 `game/ui/world/logic.js` 和 `maps.js`。
 
 - **座標**：地圖的 1 格（16 像素）= 3D 的 1 單位，地圖 x 對應 3D 的 X，地圖 y 對應 3D 的 Z。牆高 2.6，眼睛高 1.45。碰撞還是 10 像素的框，在格子上算。
 - **視角**：`yaw = 0` 看地圖上方，往左轉 yaw 變大。`fps-logic.js` 是純邏輯（轉頭、WASD 的移動向量、準星對準物件），有測試（`game/ui/world3d/test/`）。

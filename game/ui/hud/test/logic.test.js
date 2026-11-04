@@ -4,7 +4,7 @@ import { content, newGame, solveUntil } from '../../../core/test/helpers.js';
 import { MAPS } from '../../maps.js';
 import { MINIMAP_LAYOUT, minimapCells, addVisited, taskText, pickTargets, quotaText, createIdleTracker, clockDelta } from '../logic.js';
 
-test('小地圖格位涵蓋全部 7 個房間，而且和地圖一致', () => {
+test('小地圖格位涵蓋全部 3 個房間，而且和地圖一致', () => {
   assert.deepEqual(Object.keys(MINIMAP_LAYOUT).sort(), Object.keys(MAPS).sort());
   assert.deepEqual(Object.keys(MINIMAP_LAYOUT).sort(), content.rooms.list.map((r) => r.id).sort());
 });
@@ -17,14 +17,14 @@ test('小地圖只畫去過的房間，目前所在一定算', () => {
 });
 
 test('目標房間沒去過時只標問號格，去過就顯示名字', () => {
-  const names = { hall: '四樓走廊', pantry: '茶水間' };
-  const a = minimapCells({ visited: [], current: 'hall', target: 'pantry', names });
-  const p = a.find((c) => c.id === 'pantry');
+  const names = { hall: '四樓走廊', r503: '503 研究室' };
+  const a = minimapCells({ visited: [], current: 'hall', target: 'r503', names });
+  const p = a.find((c) => c.id === 'r503');
   assert.equal(p.seen, false);
   assert.equal(p.name, '？');
   assert.equal(p.target, true);
-  const b = minimapCells({ visited: ['pantry'], current: 'hall', target: 'pantry', names });
-  assert.equal(b.find((c) => c.id === 'pantry').name, '茶水間');
+  const b = minimapCells({ visited: ['r503'], current: 'hall', target: 'r503', names });
+  assert.equal(b.find((c) => c.id === 'r503').name, '503 研究室');
 });
 
 test('addVisited 不改原集合', () => {

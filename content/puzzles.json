@@ -107,7 +107,7 @@
       "id": "p4",
       "order": 4,
       "title": "販賣機按鍵",
-      "room": "pantry",
+      "room": "hall",
       "object": "vending",
       "requires": ["p3"],
       "stages": [
@@ -187,7 +187,7 @@
       "id": "p6",
       "order": 6,
       "title": "系辦數字鍵盤",
-      "room": "office",
+      "room": "hall",
       "object": "keypad",
       "requires": ["p5"],
       "stages": [
@@ -202,9 +202,9 @@
         {
           "id": "router",
           "type": "choice",
-          "prompt": "路由器的燈全滅了。",
+          "prompt": "你走進系辦，路由器的燈全滅了。",
           "options": [
-            { "id": "reboot", "label": "拔掉電源再插回去", "outcome": "next", "message": "網路回來了。鑰匙箱裡有一串寫著「一樓」的鑰匙。" }
+            { "id": "reboot", "label": "拔掉電源再插回去", "outcome": "next", "message": "網路回來了。鑰匙箱裡有一支寫著「廣播箱」的鑰匙。" }
           ]
         },
         {
@@ -213,7 +213,7 @@
           "prompt": "白板寫著：「明天迎新物資誰能幫忙搬？」",
           "options": [
             { "id": "plusone", "label": "寫上 +1", "outcome": "death", "death": "d_p6_plusone" },
-            { "id": "ignore", "label": "假裝沒看到", "outcome": "next", "message": "拿到一樓的鑰匙。" }
+            { "id": "ignore", "label": "假裝沒看到", "outcome": "next", "message": "拿到廣播箱的鑰匙。" }
           ]
         }
       ],
@@ -223,7 +223,7 @@
       "id": "p7",
       "order": 7,
       "title": "Moodle 交件",
-      "room": "lab",
+      "room": "r503",
       "object": "lab_pc",
       "requires": ["p6"],
       "optional": true,
@@ -294,7 +294,7 @@
       "id": "p8",
       "order": 8,
       "title": "廣播控制台",
-      "room": "floor1",
+      "room": "hall",
       "object": "broadcast",
       "requires": ["p6"],
       "onSolve": "exit",
@@ -302,7 +302,7 @@
         {
           "id": "console",
           "type": "select",
-          "prompt": "廣播控制台。警衛伯伯抱著鐵捲門遙控器睡在警衛室。",
+          "prompt": "四樓的樓層廣播面板。監視器裡，警衛伯伯抱著鐵捲門遙控器睡在一樓警衛室。",
           "fields": [
             { "id": "channel", "label": "頻道", "options": [{ "id": "all", "label": "全館" }, { "id": "f1", "label": "一樓" }, { "id": "f5", "label": "五樓" }] },
             { "id": "sound", "label": "音效", "options": [{ "id": "bell", "label": "上課鐘" }, { "id": "breakfast", "label": "早餐店：大冰奶好了" }, { "id": "fire", "label": "消防演練" }] },
@@ -313,12 +313,12 @@
             { "match": { "channel": "all", "volume": "max" }, "death": "d_p8_wakeall" }
           ],
           "wrongMessage": "伯伯翻了個身，繼續睡。",
-          "successMessage": "伯伯迷迷糊糊起身，打開鐵捲門，走去早餐店了。"
+          "successMessage": "伯伯打開了鐵捲門。你衝下樓走出去，學長迎面走來：「欸學弟，吃個飯而已啦。」"
         },
         {
           "id": "senior",
           "type": "choice",
-          "prompt": "走出鐵捲門，學長迎面走來：「欸學弟，吃個飯而已啦。」",
+          "prompt": "學長就站在你面前：「欸學弟，吃個飯而已啦。」",
           "options": [
             { "id": "yes", "label": "好啊", "outcome": "death", "death": "d_p8_dinner" },
             { "id": "later", "label": "下次一定", "outcome": "next" }

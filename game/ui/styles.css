@@ -1,0 +1,23 @@
+/* 基本樣式，各包的專屬樣式放在自己的資料夾 */
+:root { --font: "Pixel Font", "Microsoft JhengHei", "Noto Sans TC", sans-serif; --bg: #14161c; --panel: #1f232d; --line: #343a4a; --fg: #e8e8ee; --accent: #f0b429; --danger: #e5484d; }
+* { box-sizing: border-box; }
+/* 像素風：關掉字型平滑，圓角與柔邊陰影不用 */
+html { font-synthesis: none; -webkit-font-smoothing: none; font-smooth: never; text-rendering: optimizeSpeed; }
+canvas { image-rendering: pixelated; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 12px/1.5 var(--font); }
+#app { display: grid; grid-template-columns: 1fr 380px; grid-template-rows: auto 1fr; gap: 8px; min-height: 100vh; padding: 8px; }
+#hud-root { grid-column: 1 / -1; }
+#world-root { background: var(--panel); border: 2px solid var(--line); border-radius: 0; min-height: 200px; }
+#rooms-root { background: var(--panel); border: 2px solid var(--line); border-radius: 0; padding: 10px; overflow-y: auto; max-height: calc(100vh - 16px); }
+button { font-synthesis: none; background: #2b3040; color: var(--fg); border: 2px solid var(--line); border-radius: 0; padding: 3px 8px; cursor: pointer; font: inherit; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button { box-shadow: 2px 2px 0 #0b0d12; }
+button:disabled { opacity: .45; cursor: default; }
+.rp h2 { font-size: 12px; margin: 10px 0 4px; color: var(--accent); }
+.rp .status { font-size: 12px; color: #aab; margin-bottom: 6px; }
+.rp .room { border-top: 1px solid var(--line); padding: 6px 0; }
+.rp .room.here { background: #262b38; }
+.rp .room-head { display: flex; gap: 8px; align-items: center; font-weight: 600; }
+.rp ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.rp .log { font-size: 12px; background: #11131a; border: 2px solid var(--line); border-radius: 0; padding: 6px; max-height: 180px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+.rp .log .err { color: var(--danger); }

@@ -1,0 +1,10 @@
+/* 除錯面板：固定在右下角，只在 ?debug=1 出現 */
+.dbg { position: fixed; right: 10px; bottom: 10px; z-index: 9500; width: 300px; max-height: 80vh; overflow: auto; background: #10131aee; border: 2px solid var(--accent, #f0b429); border-radius: 0; padding: 6px 10px 10px; font-size: 12px; }
+.dbg summary { cursor: pointer; font-weight: 700; color: var(--accent, #f0b429); }
+.dbg-status { font-family: var(--font); color: #9fe3b0; margin: 4px 0; }
+.dbg-row { display: flex; gap: 6px; align-items: center; margin: 5px 0; }
+.dbg-row label { width: 36px; flex: none; color: #aab; }
+.dbg-row select { flex: 1; min-width: 0; background: #1f232d; color: inherit; border: 2px solid #343a4a; border-radius: 0; padding: 2px; }
+.dbg-row input { background: #1f232d; color: inherit; border: 2px solid #343a4a; border-radius: 0; padding: 2px 4px; }
+.dbg button.danger { border-color: var(--danger, #e5484d); color: #ff9a9d; }
+.dbg-params, .dbg-log { font-size: 12px; color: #aab; word-break: break-all; margin-top: 4px; }

@@ -1,0 +1,15 @@
+{
+  "name": "latia-mid",
+  "private": true,
+  "version": "0.1.0",
+  "description": "期中專案：網頁版密室逃脫《天亮前交出去》",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"game/core/test/*.test.js\" \"game/ui/puzzles/test/*.test.js\" \"game/ui/screens/test/*.test.js\" \"game/ui/world/test/*.test.js\" \"game/ui/hud/test/*.test.js\" \"game/ui/test/*.test.js\" \"scripts/test/*.test.js\"",
+    "serve": "npx --yes http-server -p 8080 -c-1 .",
+    "build": "node scripts/build.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

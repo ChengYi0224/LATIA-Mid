@@ -1,0 +1,331 @@
+{
+  "puzzles": [
+    {
+      "id": "p1",
+      "order": 1,
+      "title": "筆電密碼鎖",
+      "room": "r401",
+      "object": "laptop",
+      "requires": [],
+      "stages": [
+        {
+          "id": "lock",
+          "type": "code",
+          "prompt": "筆電要輸入 4 位數密碼。",
+          "answer": "5861",
+          "maxWrong": 3,
+          "wrongDeath": "d_p1_lockout",
+          "wrongMessage": "密碼錯誤。",
+          "successMessage": "解鎖了。"
+        },
+        {
+          "id": "update",
+          "type": "choice",
+          "prompt": "Windows：更新已準備就緒。",
+          "options": [
+            { "id": "later", "label": "稍後提醒我", "outcome": "death", "death": "d_p1_later" },
+            { "id": "now", "label": "立即重新啟動", "outcome": "death", "death": "d_p1_restart" },
+            { "id": "schedule", "label": "排定時間（08:00 之後）", "outcome": "next", "message": "更新排到早上 8 點以後了。" }
+          ]
+        },
+        {
+          "id": "find",
+          "type": "choice",
+          "prompt": "雲端那份被刪了，報告還能去哪找？",
+          "options": [
+            { "id": "autorecover", "label": "開 Word，點最上面那個自動修復檔", "outcome": "death", "death": "d_p1_autorecover" },
+            { "id": "history", "label": "看雲端的版本紀錄", "outcome": "next", "message": "紀錄寫著：最新那份最後在阿哲的筆電上編輯，23:40。阿哲的 IG 限動打卡在 503 研究室。" }
+          ]
+        }
+      ],
+      "reward": { "items": [], "flags": ["know_503"] }
+    },
+    {
+      "id": "p2",
+      "order": 2,
+      "title": "講桌漢字滾輪鎖",
+      "room": "r401",
+      "object": "lectern",
+      "requires": ["p1"],
+      "stages": [
+        {
+          "id": "wheel",
+          "type": "wheel",
+          "prompt": "講桌抽屜有 4 個漢字滾輪。",
+          "wheels": [
+            ["準", "遲", "早", "補"],
+            ["時", "交", "到", "考"],
+            ["不", "必", "可", "要"],
+            ["收", "扣", "改", "交"]
+          ],
+          "answer": ["遲", "交", "不", "收"],
+          "wrongMessage": "抽屜沒動。",
+          "successMessage": "抽屜打開了，裡面有一支鑰匙和一張公告。"
+        },
+        {
+          "id": "drawer",
+          "type": "choice",
+          "prompt": "抽屜裡有一張公告：「期中報告延期一週。」右下角的小字：公告日期 去年 11/3。",
+          "options": [
+            { "id": "rest", "label": "太好了，坐下來休息一下", "outcome": "death", "death": "d_p2_lastyear" },
+            { "id": "take", "label": "拿鑰匙就走", "outcome": "next", "message": "拿到後門鑰匙。" }
+          ]
+        }
+      ],
+      "reward": { "items": ["key_backdoor"], "flags": [] }
+    },
+    {
+      "id": "p3",
+      "order": 3,
+      "title": "走廊電燈開關",
+      "room": "hall",
+      "object": "switch_panel",
+      "requires": ["p2"],
+      "stages": [
+        {
+          "id": "switches",
+          "type": "toggles",
+          "prompt": "01:00 以後走廊燈只剩一段亮著。面板上有 6 個開關，標籤都磨掉了。",
+          "switches": ["1", "2", "3", "4", "5", "6"],
+          "answer": ["2", "3", "5"],
+          "wrongMessage": "去茶水間的那段路還是黑的。",
+          "successMessage": "往茶水間的路亮了。"
+        },
+        {
+          "id": "phone",
+          "type": "choice",
+          "prompt": "手機響了，是媽媽。",
+          "options": [
+            { "id": "answer", "label": "接起來", "outcome": "death", "death": "d_p3_mom" },
+            { "id": "text", "label": "傳「晚點回妳」", "outcome": "next", "message": "媽媽回了一個讚。" }
+          ]
+        }
+      ],
+      "reward": { "items": [], "flags": ["hall_lit"] }
+    },
+    {
+      "id": "p4",
+      "order": 4,
+      "title": "販賣機按鍵",
+      "room": "pantry",
+      "object": "vending",
+      "requires": ["p3"],
+      "stages": [
+        {
+          "id": "buttons",
+          "type": "sequence",
+          "prompt": "販賣機有 4 顆按鈕。",
+          "buttons": [
+            { "id": "coffee", "label": "咖啡" },
+            { "id": "tea", "label": "紅茶" },
+            { "id": "soy", "label": "豆漿" },
+            { "id": "energy", "label": "能量飲" }
+          ],
+          "answer": ["coffee", "coffee", "tea", "energy"],
+          "wrongMessage": "販賣機沒反應。",
+          "successMessage": "喀啦一聲，退幣口掉出一串鑰匙。"
+        },
+        {
+          "id": "sofa",
+          "type": "choice",
+          "prompt": "鑰匙拿到了。旁邊的沙發看起來很好睡。",
+          "options": [
+            { "id": "nap", "label": "設 15 分鐘鬧鐘，瞇一下", "outcome": "death", "death": "d_p4_nap" },
+            { "id": "go", "label": "拿了就走", "outcome": "next", "message": "拿到 503 的鑰匙。" }
+          ]
+        }
+      ],
+      "reward": { "items": ["key_503"], "flags": [] }
+    },
+    {
+      "id": "p5",
+      "order": 5,
+      "title": "依序抽書",
+      "room": "r503",
+      "object": "bookshelf",
+      "requires": ["p4"],
+      "stages": [
+        {
+          "id": "books",
+          "type": "sequence",
+          "prompt": "阿哲的筆電沒電了。書架上有 6 本書。",
+          "buttons": [
+            { "id": "algo", "label": "演算法（第三版）" },
+            { "id": "os", "label": "作業系統" },
+            { "id": "db", "label": "資料庫系統" },
+            { "id": "net", "label": "計算機網路" },
+            { "id": "calc", "label": "微積分" },
+            { "id": "stat", "label": "統計學" }
+          ],
+          "answer": ["algo", "os", "db", "net"],
+          "wrongMessage": "書架沒動靜。",
+          "successMessage": "書架後面掉出一條充電器。筆電開機了。"
+        },
+        {
+          "id": "azhe",
+          "type": "choice",
+          "prompt": "阿哲迷迷糊糊醒來：「我幫你整理一下資料夾……」",
+          "options": [
+            { "id": "yes", "label": "好啊，謝謝", "outcome": "death", "death": "d_p5_tidy" },
+            { "id": "no", "label": "不用啦，你繼續睡", "outcome": "next", "message": "阿哲又睡著了。" }
+          ]
+        },
+        {
+          "id": "file",
+          "type": "choice",
+          "prompt": "桌面上有三個檔案，要複製哪一個？",
+          "options": [
+            { "id": "final", "label": "最終版.docx", "desc": "修改時間 22:10", "outcome": "death", "death": "d_p5_final" },
+            { "id": "really", "label": "最終版_真的最終.docx", "desc": "修改時間 21:55", "outcome": "death", "death": "d_p5_really" },
+            { "id": "final1", "label": "最終版(1).docx", "desc": "修改時間 23:40", "outcome": "next", "message": "報告複製到隨身碟了。" }
+          ]
+        }
+      ],
+      "reward": { "items": ["usb_report"], "flags": [] }
+    },
+    {
+      "id": "p6",
+      "order": 6,
+      "title": "系辦數字鍵盤",
+      "room": "office",
+      "object": "keypad",
+      "requires": ["p5"],
+      "stages": [
+        {
+          "id": "keypad",
+          "type": "code",
+          "prompt": "系辦門口的門禁鍵盤，4 位數。",
+          "answer": "1987",
+          "wrongMessage": "嗶——錯誤。",
+          "successMessage": "門開了。"
+        },
+        {
+          "id": "router",
+          "type": "choice",
+          "prompt": "路由器的燈全滅了。",
+          "options": [
+            { "id": "reboot", "label": "拔掉電源再插回去", "outcome": "next", "message": "網路回來了。鑰匙箱裡有一串寫著「一樓」的鑰匙。" }
+          ]
+        },
+        {
+          "id": "whiteboard",
+          "type": "choice",
+          "prompt": "白板寫著：「明天迎新物資誰能幫忙搬？」",
+          "options": [
+            { "id": "plusone", "label": "寫上 +1", "outcome": "death", "death": "d_p6_plusone" },
+            { "id": "ignore", "label": "假裝沒看到", "outcome": "next", "message": "拿到一樓的鑰匙。" }
+          ]
+        }
+      ],
+      "reward": { "items": ["key_floor1"], "flags": ["network"] }
+    },
+    {
+      "id": "p7",
+      "order": 7,
+      "title": "Moodle 交件",
+      "room": "lab",
+      "object": "lab_pc",
+      "requires": ["p6"],
+      "optional": true,
+      "stages": [
+        {
+          "id": "submit",
+          "type": "choice",
+          "prompt": "期中報告繳交區。檔案選好了。",
+          "options": [
+            { "id": "submit", "label": "繳交", "outcome": "next", "message": "頁面重新整理。右上角變成「您正使用訪客身分瀏覽（登入）」。" }
+          ]
+        },
+        {
+          "id": "guest_dialog",
+          "type": "choice",
+          "prompt": "確認：訪客無法存取用戶個人資料表。以完整的用戶帳號登入才能繼續。",
+          "options": [
+            { "id": "continue", "label": "繼續", "outcome": "next" },
+            { "id": "cancel", "label": "取消", "outcome": "stay", "message": "你又回到繳交區，右上角還是訪客。" }
+          ]
+        },
+        {
+          "id": "login_choice",
+          "type": "choice",
+          "prompt": "登入頁。帳號和密碼已經自動填好了。",
+          "options": [
+            { "id": "guest", "label": "以訪客身分登入", "outcome": "death", "death": "d_p7_guest" },
+            { "id": "forgot", "label": "忘記帳號或密碼嗎？", "outcome": "death", "death": "d_p7_forgot" },
+            { "id": "contact", "label": "保持聯繫：寫信給管理者", "outcome": "death", "death": "d_p7_admin" },
+            { "id": "autofill", "label": "直接按「登入」", "outcome": "death", "death": "d_p7_senior_account" },
+            { "id": "clear", "label": "清掉欄位，自己輸入", "outcome": "next" }
+          ]
+        },
+        {
+          "id": "login",
+          "type": "code",
+          "prompt": "輸入你的密碼。（你所有的密碼都設成同一組。）",
+          "answer": "5861",
+          "checks": [
+            { "id": "remember", "label": "記住帳號", "setsFlag": "p7_remembered" }
+          ],
+          "wrongMessage": "帳號或密碼錯誤。",
+          "successMessage": "登入成功。你被丟回了首頁。"
+        },
+        {
+          "id": "find_course",
+          "type": "choice",
+          "prompt": "首頁的「我的課程」：",
+          "options": [
+            { "id": "lastyear", "label": "軟體工程導論（去年）", "desc": "最近瀏覽", "outcome": "death", "death": "d_p7_lastyear" },
+            { "id": "calendar", "label": "左側欄「行事曆」：期中報告截止 07:00", "outcome": "next", "message": "從行事曆點回今年的課程了。" },
+            { "id": "thisyear", "label": "軟體工程導論（今年）", "outcome": "next", "message": "找到今年的課程了。" }
+          ]
+        },
+        {
+          "id": "final_submit",
+          "type": "choice",
+          "prompt": "組員傳來：「結論寫好了！在共用檔！」共用檔顯示：字數 4。",
+          "options": [
+            { "id": "merge", "label": "把共用檔的結論併進來再交", "outcome": "death", "death": "d_p7_conclusion" },
+            { "id": "submit", "label": "直接提交作業", "outcome": "next", "message": "繳交狀態：已繳交。" }
+          ]
+        }
+      ],
+      "reward": { "items": [], "flags": ["submitted"] }
+    },
+    {
+      "id": "p8",
+      "order": 8,
+      "title": "廣播控制台",
+      "room": "floor1",
+      "object": "broadcast",
+      "requires": ["p6"],
+      "onSolve": "exit",
+      "stages": [
+        {
+          "id": "console",
+          "type": "select",
+          "prompt": "廣播控制台。警衛伯伯抱著鐵捲門遙控器睡在警衛室。",
+          "fields": [
+            { "id": "channel", "label": "頻道", "options": [{ "id": "all", "label": "全館" }, { "id": "f1", "label": "一樓" }, { "id": "f5", "label": "五樓" }] },
+            { "id": "sound", "label": "音效", "options": [{ "id": "bell", "label": "上課鐘" }, { "id": "breakfast", "label": "早餐店：大冰奶好了" }, { "id": "fire", "label": "消防演練" }] },
+            { "id": "volume", "label": "音量", "options": [{ "id": "low", "label": "小" }, { "id": "mid", "label": "中" }, { "id": "max", "label": "最大" }] }
+          ],
+          "answer": { "channel": "f1", "sound": "breakfast", "volume": "low" },
+          "deathRules": [
+            { "match": { "channel": "all", "volume": "max" }, "death": "d_p8_wakeall" }
+          ],
+          "wrongMessage": "伯伯翻了個身，繼續睡。",
+          "successMessage": "伯伯迷迷糊糊起身，打開鐵捲門，走去早餐店了。"
+        },
+        {
+          "id": "senior",
+          "type": "choice",
+          "prompt": "走出鐵捲門，學長迎面走來：「欸學弟，吃個飯而已啦。」",
+          "options": [
+            { "id": "yes", "label": "好啊", "outcome": "death", "death": "d_p8_dinner" },
+            { "id": "later", "label": "下次一定", "outcome": "next" }
+          ]
+        }
+      ],
+      "reward": { "items": [], "flags": ["escaped"] }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+/* 第 7 關假 Moodle（WP4）：深色主題，深紅標題列，登入頁左藍右黑。校徽與圖形全用 CSS／內嵌 SVG。 */
+.mdl-wrap { width: min(980px, 96vw); max-height: calc(100vh - var(--hud-h, 0px) - 12px); display: flex; flex-direction: column; gap: 6px; color: var(--mdl-text); font-size: 12px; }
+.mdl-wrap.shake { animation: pz-shake .35s; }
+.mdl-caption { display: flex; align-items: center; gap: 10px; background: #11131a; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; color: #cfd2dc; font-size: 12px; }
+.mdl-caption span { flex: 1; }
+.mdl-caption .mdl-x { padding: 1px 8px; }
+.mdl-win { position: relative; background: var(--mdl-bg); border: 1px solid #000; border-radius: 4px; overflow: hidden auto; display: flex; flex-direction: column; min-height: 420px; max-height: calc(100vh - var(--hud-h, 0px) - 70px); }
+.mdl-win button { font: inherit; }
+.mdl-bar { display: flex; align-items: center; gap: 14px; background: var(--mdl-bar); padding: 8px 14px; color: #fff; }
+.mdl-burger { display: flex; flex-direction: column; gap: 4px; }
+.mdl-burger i { display: block; width: 20px; height: 2px; background: #fff; }
+.mdl-title { display: flex; align-items: center; gap: 8px; font-weight: 600; flex: 1; }
+.mdl-logo { width: 28px; height: 28px; background: #3a2a1a; border-radius: 4px; padding: 2px; flex: none; }
+.mdl-right { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.mdl-globe { width: 18px; height: 18px; color: #fff; }
+.mdl-status u { cursor: pointer; }
+.mdl-body { display: flex; flex: 1; min-height: 0; }
+.mdl-side { width: 140px; flex: none; background: #181a1f; border-right: 1px solid #000; padding: 10px 0; display: flex; flex-direction: column; }
+.mdl-nav { background: none; border: 0; border-left: 3px solid transparent; border-radius: 0; text-align: left; padding: 8px 16px; color: var(--mdl-text); cursor: pointer; }
+.mdl-nav:hover:not(:disabled) { background: #23262d; }
+.mdl-nav.on { border-left-color: var(--mdl-btn); background: #23262d; }
+.mdl-main { flex: 1; padding: 16px 22px; min-width: 0; }
+.mdl-main h1 { font-size: 24px; margin: 6px 0 14px; font-weight: 500; }
+.mdl-crumb { font-size: 12px; color: #9aa0ad; }
+.mdl-table { border: 1px solid #3a3d46; border-radius: 4px; margin-bottom: 14px; }
+.mdl-row { display: flex; padding: 8px 12px; border-top: 1px solid #3a3d46; }
+.mdl-row:first-child { border-top: 0; }
+.mdl-row .k { width: 110px; flex: none; color: #9aa0ad; }
+.mdl-team { background: #262a33; border-left: 3px solid var(--mdl-btn); border-radius: 4px; padding: 8px 12px; margin-bottom: 14px; }
+.mdl-team p { margin: 4px 0 0; }
+.mdl-actions { display: flex; gap: 10px; }
+.mdl-primary { background: var(--mdl-btn) !important; color: #fff !important; border: 1px solid #1f5a9b !important; border-radius: 4px; padding: 7px 18px !important; cursor: pointer; }
+.mdl-primary:hover:not(:disabled) { background-color: #3b86d6 !important; }
+.mdl-primary:disabled { opacity: .55; cursor: default; }
+.mdl-sec { background: #3a3d46 !important; color: var(--mdl-text) !important; border: 1px solid #555 !important; padding: 7px 14px !important; border-radius: 4px; cursor: pointer; }
+.mdl-courses { display: flex; flex-direction: column; gap: 10px; }
+.mdl-course { display: flex !important; align-items: center; gap: 12px; text-align: left; background: #262a33 !important; border: 1px solid #3a3d46 !important; color: var(--mdl-text) !important; border-radius: 4px; padding: 10px 12px !important; cursor: pointer; }
+.mdl-course:hover { border-color: var(--mdl-btn) !important; }
+.mdl-thumb { width: 54px; height: 36px; border-radius: 3px; background: linear-gradient(135deg, #2f6fb5, #7a1f2b); flex: none; }
+.mdl-cname { flex: 1; }
+.mdl-recent { font-size: 12px; color: #9aa0ad; }
+.mdl-cal { border: 1px solid #3a3d46; border-radius: 4px; padding: 10px 12px; }
+.mdl-cal-head { color: #9aa0ad; font-size: 12px; margin-bottom: 8px; }
+.mdl-event { background: #263a52 !important; border: 1px solid #2f6fb5 !important; color: var(--mdl-text) !important; padding: 8px 12px !important; border-radius: 4px; cursor: pointer; text-align: left; }
+.mdl-shade { position: absolute; inset: 44px 0 28px; background: rgba(0, 0, 0, .55); display: flex; align-items: center; justify-content: center; }
+.mdl-dialog { background: #2a2c33; border: 1px solid #555; border-radius: 4px; width: min(420px, 86%); padding: 16px 18px; }
+.mdl-dialog h2 { margin: 0 0 8px; font-size: 12px; font-weight: 500; }
+.mdl-dialog p { margin: 0 0 14px; }
+.mdl-dialog .mdl-actions { justify-content: flex-end; }
+.mdl-login { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 22px 12px; background: linear-gradient(160deg, #1c2a3c 0%, #1e1f24 55%, #2a1a20 100%); }
+.mdl-login-card { display: flex; width: min(760px, 94%); min-height: 280px; box-shadow: 4px 4px 0 #000; }
+.mdl-login-left { flex: 1; background: var(--mdl-left); padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+.mdl-login-left h2 { margin: 8px 0; font-size: 12px; }
+.mdl-login-left p { margin: 0; font-size: 12px; color: #e3eefb; }
+.mdl-login-left .mdl-logo { width: 40px; height: 40px; background: #1f4f85; }
+.mdl-ghost { margin-top: auto; background: transparent !important; border: 1px solid #fff !important; color: #fff !important; border-radius: 4px; padding: 7px 12px !important; cursor: pointer; }
+.mdl-ghost:hover { background: rgba(255, 255, 255, .15) !important; }
+.mdl-login-right { flex: 1; background: var(--mdl-right); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.mdl-login-right h2 { margin: 0 0 4px; font-size: 12px; font-weight: 500; }
+.mdl-login-right input[type=text], .mdl-login-right input[type=password] { background: #fff; color: #222; border: 1px solid #888; border-radius: 3px; padding: 7px 10px; font: inherit; }
+.mdl-login-right input[readonly] { background: #dfe6f1; }
+.mdl-remember { font-size: 12px; }
+.mdl-wide { width: 100%; }
+.mdl-link { background: none !important; border: 0 !important; color: #6fb1f2 !important; padding: 2px 0 !important; text-align: left; cursor: pointer; text-decoration: underline; width: fit-content; }
+.mdl-contact { color: #9aa0ad !important; font-size: 12px; }
+.mdl-footer { background: #181a1f; color: #9aa0ad; font-size: 12px; padding: 6px 14px; border-top: 1px solid #000; }
+.mdl-note { padding: 8px 12px; border-radius: 4px; background: #11131a; border-left: 3px solid var(--line); }
+.mdl-note.bad { border-left-color: var(--danger); color: #ffb4b6; }
+.mdl-note.ok { border-left-color: var(--accent); }
+@media (max-width: 640px) { .mdl-login-card { flex-direction: column; } .mdl-side { width: 90px; } }

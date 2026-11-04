@@ -1,0 +1,43 @@
+/* 氣氛與台詞（flavor.js） */
+body { background: radial-gradient(ellipse at 50% -20%, color-mix(in srgb, var(--sky, #0a0f2c) 55%, transparent), transparent 60%), var(--bg); background-attachment: fixed; transition: background .8s; }
+
+/* 主角的對話框：畫面下方，像 RPG 的對話框 */
+.fv-say { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 58; width: min(640px, 92vw);
+  background: #11131a; border: 3px solid #f2ede0; box-shadow: 0 0 0 3px #11131a, 6px 6px 0 3px #000;
+  padding: 10px 16px 12px; color: #f2ede0; cursor: pointer; animation: fv-in .18s steps(3) both; }
+.fv-say[hidden] { display: none; }
+.fv-who { display: inline-block; font: 12px/1.5 var(--font); letter-spacing: .1em; color: #11131a; background: var(--accent); padding: 3px 8px; margin-bottom: 6px; }
+.fv-line { font-size: 12px; line-height: 1.6; min-height: 1.6em; }
+.fv-say.narration { border-color: #6b7390; background: rgba(10, 12, 20, .9); }
+.fv-say.narration .fv-line { color: #c9cfe6; text-align: center; }
+.fv-say::after { content: '▼'; position: absolute; right: 12px; bottom: 6px; font-size: 12px; color: var(--accent); animation: fv-blink 1s steps(2) infinite; }
+@keyframes fv-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translateX(-50%); } }
+@keyframes fv-blink { 50% { opacity: 0; } }
+
+/* 拿到道具 */
+.fv-item { position: fixed; left: 50%; top: 42%; z-index: 59; display: flex; align-items: center; gap: 10px; transform: translate(-50%, -50%);
+  background: #f2ede0; color: #1b1a17; border: 3px solid #1b1a17; box-shadow: 6px 6px 0 #000; padding: 10px 18px; font-size: 12px; pointer-events: none; }
+.fv-item[hidden] { display: none; }
+.fv-item.on { animation: fv-pop 2.2s ease both; }
+.fv-item-icon { width: 22px; height: 22px; background:
+  linear-gradient(#f0b429, #f0b429) 2px 8px / 12px 6px no-repeat,
+  linear-gradient(#f0b429, #f0b429) 12px 6px / 8px 10px no-repeat,
+  linear-gradient(#1b1a17, #1b1a17) 14px 9px / 4px 4px no-repeat; image-rendering: pixelated; }
+.fv-item-label { font: 12px/1.5 var(--font); background: #1b1a17; color: #f2ede0; padding: 3px 6px; }
+@keyframes fv-pop { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  20% { transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(-50%, -80%); } }
+
+/* 手機通知 */
+.fv-notes { position: fixed; right: 12px; top: calc(var(--hud-h, 0px) + 8px); z-index: 57; display: flex; flex-direction: column; gap: 6px; width: min(300px, 80vw); pointer-events: none; }
+.fv-note { background: #f7f7f9; color: #1b1a17; border-radius: 0; padding: 8px 12px; box-shadow: 3px 3px 0 #000; animation: fv-slide .3s ease both; transition: opacity .5s, transform .5s; }
+.fv-note.out { opacity: 0; transform: translateX(30px); }
+.fv-note-from { font-size: 12px; font-weight: 700; color: #06c755; }
+.fv-note-text { font-size: 12px; line-height: 1.5; }
+@keyframes fv-slide { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+
+/* 死掉的那一下：整個畫面紅一閃、抖一下 */
+.fv-hit #app { animation: fv-shake .35s steps(6); }
+@keyframes fv-shake { 0%, 100% { transform: none; } 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, 1px); } 80% { transform: translate(3px, 2px); } }
+/* 謎題打開時對話框移到上面，才不會蓋住謎題的按鈕 */
+body:has(#puzzle-root .pz-overlay) .fv-say { bottom: auto; top: calc(var(--hud-h, 0px) + 8px); }
+body:has(#puzzle-root .pz-overlay) .fv-notes { top: auto; bottom: 12px; }

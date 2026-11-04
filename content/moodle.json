@@ -1,0 +1,40 @@
+{
+  "note": "第 7 關假 Moodle 頁面的畫面文字。流程與判定在 puzzles.json 的 p7，這裡只放畫面要顯示的字與配色。不放真實校名與校徽。",
+  "schoolName": "國立夜貓大學",
+  "logo": "像素貓頭鷹（佔位）",
+  "theme": { "background": "#1e1f24", "titleBar": "#7a1f2b", "loginLeft": "#2f6fb5", "loginRight": "#2a2c33", "primaryButton": "#2f6fb5", "text": "#e8e8ea" },
+  "titleBar": { "title": "國立夜貓大學 Moodle 數位學習平台 ver. 3.7", "hamburger": true, "language": "地球圖示", "guestStatus": "您正使用訪客身分瀏覽（登入）" },
+  "sidebar": ["首頁", "行事曆"],
+  "loginPage": {
+    "backgroundArt": "一群人圍著桌子討論的插畫（佔位）",
+    "left": {
+      "title": "國立夜貓大學 Moodle3.7 數位學習平台",
+      "lines": ["您的瀏覽器必須啟動 Cookies 功能", "有些課程可能允許訪客瀏覽"],
+      "guestButton": "以訪客身分登入"
+    },
+    "right": {
+      "title": "已經有一個帳號？",
+      "usernamePlaceholder": "帳號",
+      "passwordPlaceholder": "密碼",
+      "autofilledUsername": "上一個人的學號（公用電腦記住的）",
+      "remember": "記住帳號",
+      "loginButton": "登入",
+      "forgot": "忘記帳號或密碼嗎？"
+    }
+  },
+  "guestDialog": { "title": "確認", "text": "訪客無法存取用戶個人資料表。以完整的用戶帳號登入才能繼續。", "buttons": ["繼續", "取消"] },
+  "footer": "保持聯繫：如有任何功能操作問題，敬請來信管理者信箱",
+  "home": {
+    "myCourses": ["軟體工程導論（去年）", "軟體工程導論（今年）", "通識：生活中的統計"],
+    "calendarEvent": "期中報告截止 07:00"
+  },
+  "assignment": { "title": "期中報告繳交區", "statusDraft": "繳交狀態：尚未繳交", "statusDone": "繳交狀態：已繳交" },
+  "stageScreens": {
+    "submit": "course",
+    "guest_dialog": "course+dialog",
+    "login_choice": "login",
+    "login": "login",
+    "find_course": "home",
+    "final_submit": "course"
+  }
+}

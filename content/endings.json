@@ -1,0 +1,9 @@
+{
+  "trueEndingCodexRequired": 10,
+  "endings": [
+    { "id": "end_dawn", "no": 41, "title": "天亮了", "condition": "時鐘走到 07:00", "lines": ["07:00:01。", "進度條停在 99%，你遲交了 1 分鐘。"], "art": "end_dawn" },
+    { "id": "end_no_submit", "no": 42, "title": "人出來了，報告沒交", "condition": "沒交 Moodle 就走出大門", "lines": ["凌晨的空氣很好。", "報告還在你的隨身碟裡。"], "art": "end_no_submit" },
+    { "id": "end_normal", "no": 43, "title": "交了，也出來了", "condition": "交完報告、走出大門，在結局畫面直接按「回家睡覺」", "lines": ["你回家倒頭就睡。", "後來你上台講組員做的投影片，那是你第一次看到內容。", "學姊走過來：「那幫我顧攤十分鐘？」"], "art": "end_normal" },
+    { "id": "end_true", "no": 44, "title": "1 則未讀", "condition": "交完報告、走出大門，圖鑑收集到 10 格以上，在結局畫面點開那則一直沒看的課程公告", "lines": ["你終於點開那則未讀。", "課程公告（00:30）：本次報告延期一週。", "老師只發了公告，忘了改 Moodle 的截止時間。", "就跟那扇門一樣，其實都沒鎖。"], "art": "end_true" }
+  ]
+}

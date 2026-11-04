@@ -1,0 +1,28 @@
+/* 通用謎題介面（WP3） */
+.pz-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .6); display: flex; align-items: center; justify-content: center; z-index: 50; box-sizing: border-box; padding-top: var(--hud-h, 0px); /* 讓開疊在上面的 HUD */ }
+.pz-card { background: var(--panel); border: 2px solid var(--accent); border-radius: 0; padding: 16px 18px; width: min(520px, 92vw); max-height: calc(100vh - var(--hud-h, 0px) - 24px); overflow-y: auto; }
+.pz-card.shake { animation: pz-shake .35s; }
+@keyframes pz-shake { 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-5px); } }
+.pz-head { display: flex; align-items: center; gap: 10px; color: var(--accent); }
+.pz-head .pz-step-no { margin-left: auto; font-size: 12px; color: #aab; }
+.pz-prompt { margin: 10px 0; }
+.pz-body { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.pz-card button { padding: 6px 12px; }
+.pz-card button.primary { border-color: var(--accent); color: var(--accent); }
+.pz-close { padding: 2px 8px !important; }
+.pz-code { font: 24px/1.5 var(--font); letter-spacing: .3em; width: 100%; padding: 6px 10px; background: #11131a; color: var(--fg); border: 2px solid var(--line); border-radius: 0; }
+.pz-wheels { display: flex; gap: 10px; }
+.pz-wheel { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.pz-glyph { font-size: 24px; width: 56px; text-align: center; background: #11131a; border: 2px solid var(--line); border-radius: 0; padding: 4px 0; }
+.pz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
+.pz-picked { font-size: 12px; color: #aab; }
+.pz-row { display: flex; gap: 8px; }
+.pz-switches { display: flex; gap: 8px; flex-wrap: wrap; }
+.pz-switch.on { background: #4a3d12; border-color: var(--accent); }
+.pz-field select { background: #11131a; color: var(--fg); border: 2px solid var(--line); border-radius: 0; padding: 4px; font: inherit; }
+.pz-options { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.pz-option { text-align: left; }
+.pz-desc { display: block; font-size: 12px; color: #aab; }
+.pz-note { margin-top: 12px; padding: 8px 10px; border-radius: 0; background: #11131a; border-left: 3px solid var(--line); }
+.pz-note.bad { border-left-color: var(--danger); color: #ffb4b6; }
+.pz-note.ok { border-left-color: var(--accent); }

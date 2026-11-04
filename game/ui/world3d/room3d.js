@@ -5,24 +5,25 @@ import { skyColor, darkness, dawnLevel } from '../flavor-logic.js';
 import { tileAt, resolveObject } from '../world/logic.js';
 import { WALL_H, mat, getStyle, tileTexture, assemble, makeLabel, makeGlyph, disposeGroup, B, T } from './kit.js';
 import { MODELS, genericModel } from './models.js';
+import { labelMark } from './prompt-logic.js';
 
 const T3 = () => globalThis.THREE;
 
 // ---------- 氣氛設定 ----------
 // 每個房間的基本暗度；走廊要等第 3 關開燈才會亮
-export const ROOM_DARK = { r401: 0.5, hall: 0.84, pantry: 0.6, r503: 0.62, office: 0.6, lab: 0.56, floor1: 0.66 };
+export const ROOM_DARK = { r401: 0.22, hall: 0.5, r503: 0.28 };
 // 會發光的物件：[顏色, 光照半徑（像素）]
 export const LIGHTS = {
   laptop: ['#9ec3ff', 40], hint: ['#f0b429', 18], phone: ['#3ec28f', 16],
   vending: ['#ff7a7a', 54], switch_panel: ['#ffe27a', 22], keypad: ['#7fffa0', 20],
   lab_pc: ['#8fb8ff', 42], e_restore: ['#8fb8ff', 26], e_sync: ['#8fb8ff', 26], e_seniorcode: ['#8fb8ff', 30],
-  broadcast: ['#ff9ad0', 30], e_guardpc: ['#8fb8ff', 24], c_guard: ['#ffd28a', 46], e_printer: ['#cfe0ff', 18],
+  broadcast: ['#ff9ad0', 30], e_guardpc: ['#8fb8ff', 24], c_guard: ['#9fd0ff', 30], e_printer: ['#cfe0ff', 18],
 };
-export const SLEEPERS = ['c_sleeptalk', 'c_guard'];
+export const SLEEPERS = ['c_sleeptalk'];
 // 北牆上的窗戶（x 座標；被物件或門佔住、不是牆就不蓋）
-const WINDOWS = { r401: [3, 4, 8], hall: [1, 22], pantry: [2, 3, 8], r503: [6, 7], office: [2, 3, 10], lab: [6, 7, 13, 14], floor1: [9, 10] };
+const WINDOWS = { r401: [3, 4, 8], hall: [1, 22], r503: [6, 7] };
 const KIND_COLOR = { puzzle: '#f0b429', egg: '#e08bb0', clue: '#7fb8d9', door: '#3ec28f', phone: '#3ec28f', hint: '#3ec28f' };
-const LABEL_NEAR = 7;
+const LABEL_NEAR = 9;
 
 const shade = (hex, f) => {
   const n = parseInt(hex.slice(1), 16);
@@ -75,21 +76,25 @@ export function buildRoom({ map, roomId, content }) {
     }
   }
 
-  // ----- 門 -----
+  // ----- 門（signs 是關著、不能互動的假門，畫法一樣） -----
   const doorEntries = [];
-  for (const d of map.doors) {
+  const signXs = new Set((map.signs ?? []).map((sg) => `${sg.x},${sg.y}`));
+  const doorList = [...map.doors.map((d) => ({ ...d, fake: false })), ...(map.signs ?? []).map((sg) => ({ ...sg, fake: true }))];
+  for (const d of doorList) {
     const dir = DIRS.find(([dx, dz]) => tileAt(map, d.x + dx, d.y + dz) === '.') ?? [0, 1];
     const g = assemble([
       B(0, 1.1, 0.04, 0.92, 2.2, 0.08, '#6b4a2f', { tex: 'wood' }), B(0, 1.1, 0.085, 0.74, 1.95, 0.02, '#7c5736', { tex: 'wood' }),
       B(0.3, 1.05, 0.11, 0.05, 0.05, 0.05, '#d9b24c'),
       B(0, 2.4, 0.04, 0.96, 0.4, 0.08, '#6a6a74'),
       B(-0.5, 1.2, 0.04, 0.08, 2.4, 0.1, '#55555f'), B(0.5, 1.2, 0.04, 0.08, 2.4, 0.1, '#55555f'),
-      T(0, 2.4, 0.09, 0.6, 0.2, '出口', { bg: '#1d6b3d', fg: '#d8ffe4', px: 66, w: 256, h: 128, glow: true }),
+      d.fake
+        ? T(0, 2.4, 0.09, 0.6, 0.2, '鎖住', { bg: '#4a4a52', fg: '#c8c8d0', px: 66, w: 256, h: 128 })
+        : T(0, 2.4, 0.09, 0.6, 0.2, '出口', { bg: '#1d6b3d', fg: '#d8ffe4', px: 66, w: 256, h: 128, glow: true }),
     ]);
     g.position.set(d.x + 0.5 + dir[0] * 0.42, 0, d.y + 0.5 + dir[1] * 0.42);
     g.rotation.y = Math.atan2(dir[0], dir[1]);
     group.add(g);
-    const label = makeLabel(`→ ${content.rooms.byId[d.to]?.name ?? d.to}`, '#3ec28f');
+    const label = d.fake ? makeLabel(d.text, '#9a9ead') : makeLabel(`→ ${content.rooms.byId[d.to]?.name ?? d.to}`, '#3ec28f');
     label.position.set(d.x + 0.5 + dir[0] * 0.2, 2.0, d.y + 0.5 + dir[1] * 0.2);
     group.add(label);
     doorEntries.push({ label });
@@ -98,7 +103,7 @@ export function buildRoom({ map, roomId, content }) {
   // ----- 窗 -----
   const windows = [];
   for (const x of WINDOWS[roomId] ?? []) {
-    if (tileAt(map, x, 0) !== '#' || objAt(x, 0) || isDoor(x, 0)) continue;
+    if (tileAt(map, x, 0) !== '#' || objAt(x, 0) || isDoor(x, 0) || signXs.has(`${x},0`)) continue;
     const g = new THREE.Group();
     const pane = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 0.86), mat('#0a0f2c', { glow: true, unique: true }));
     pane.userData.ownMaterial = true;
@@ -188,7 +193,7 @@ export function buildRoom({ map, roomId, content }) {
     const fix = assemble([B(0, WALL_H - 0.04, 0, along ? 0.9 : 0.35, 0.05, along ? 0.35 : 0.9, '#fff4d8', { glow: true, unique: true, tag: 'lamp', sharp: true })]);
     fix.position.set(x, 0, z);
     group.add(fix);
-    const light = new THREE.PointLight('#ffe9c2', 10, 0, 1.6);
+    const light = new THREE.PointLight('#ffe9c2', 10, 0, 1.2);
     light.position.set(x, WALL_H - 0.3, z);
     group.add(light);
     lamps.push({ light, fix });
@@ -212,40 +217,49 @@ export function buildRoom({ map, roomId, content }) {
   });
 
   let flickerUntil = 0;
+  let targetObj = null;
   const labelState = new Map();
 
   return {
     group, entries, map, roomId,
     /** 解開的謎題名牌打勾。 */
-    refreshLabels(isSolved) {
+    refreshLabels({ solved, available, seen, targetId }) {
+      targetObj = targetId ?? null;
       for (const e of entries) {
-        if (!e.label || e.res?.kind !== 'puzzle') continue;
-        const done = isSolved(e.res.puzzle.id);
-        if (labelState.get(e.ob.id) === done) continue;
-        labelState.set(e.ob.id, done);
-        e.label.userData.draw(`${done ? '✓ ' : ''}${e.res.name}`, done ? '#3ec28f' : KIND_COLOR.puzzle);
+        if (!e.label || !e.res) continue;
+        const isPuzzle = e.res.kind === 'puzzle';
+        const done = isPuzzle && !!solved?.(e.res.puzzle.id);
+        const open = !isPuzzle || !!available?.(e.res.puzzle.id);
+        const visited = !!seen?.has(e.ob.id);
+        const isTarget = isPuzzle && !done && e.res.puzzle.object === targetId;
+        const key = `${done}|${open}|${visited}|${isTarget}`;
+        if (labelState.get(e.ob.id) === key) continue;
+        labelState.set(e.ob.id, key);
+        const mark = labelMark(e.res, { solved: done, available: open, seen: visited, isTarget });
+        const color = done ? '#3ec28f' : isTarget ? '#ffe27a' : (visited && !isPuzzle) || !open ? '#7d8294' : KIND_COLOR[e.res.kind] ?? '#f0b429';
+        e.label.userData.draw(`${mark}${e.res.name}`, color);
       }
     },
     /** 每幀：燈光亮度、霧、窗外天色、閃爍和名牌淡入淡出。 */
     update({ scene, camera, st, now }) {
       let base = ROOM_DARK[roomId] ?? 0.5;
       if (roomId === 'hall' && st.flags.hall_lit) {
-        base = 0.28;
+        base = 0.12;
         if (now > flickerUntil && Math.random() < 0.006) flickerUntil = now + 90 + Math.random() * 160;
-        if (now < flickerUntil) base = 0.7;
+        if (now < flickerUntil) base = 0.4;
       }
       const a = darkness(base, st.clock);
       const bright = 1 - a;
       const dawn = dawnLevel(st.clock);
-      hemi.intensity = 0.3 + 1.25 * bright;
-      hemi.color.set(lerpColor('#8fa4ff', '#ffe2b8', dawn));
-      sun.intensity = 0.25 + 2.2 * bright * bright;
+      hemi.intensity = 0.7 + 1.1 * bright;
+      hemi.color.set(lerpColor('#b8c4ff', '#ffe2b8', dawn));
+      sun.intensity = 0.6 + 1.8 * bright;
       sun.color.copy(lerpColor('#8aa2ff', '#ffd9a0', dawn));
-      for (const l of lamps) l.light.intensity = 3 + 22 * bright * bright;
-      const fogCol = lerpColor('#0a0d1c', '#46507a', Math.min(1, bright * 0.9 + dawn * 0.3));
+      for (const l of lamps) l.light.intensity = 10 + 22 * bright;
+      const fogCol = lerpColor('#1b2238', '#6b7494', Math.min(1, bright * 0.9 + dawn * 0.3));
       scene.fog.color.copy(fogCol);
-      scene.fog.near = 2.5;
-      scene.fog.far = 9 + 16 * bright;
+      scene.fog.near = 5;
+      scene.fog.far = 16 + 14 * bright;
       scene.background.copy(fogCol);
 
       const sky = skyColor(st.clock);
@@ -258,9 +272,9 @@ export function buildRoom({ map, roomId, content }) {
         const t = m.userData.tag, base0 = m.userData.base;
         if (t === 'screen') m.material.color.copy(base0).multiplyScalar(0.88 + 0.12 * Math.sin(now / 300 + m.position.x * 3));
         else if (t === 'blink') m.material.color.copy(base0).multiplyScalar(Math.floor(now / 500 + m.position.x * 4) % 2 ? 1 : 0.2);
-        else if (t === 'lamp') m.material.color.copy(base0).multiplyScalar(0.25 + 0.75 * Math.min(1, bright * 1.4));
+        else if (t === 'lamp') m.material.color.copy(base0).multiplyScalar(0.5 + 0.5 * Math.min(1, bright * 1.4));
       }
-      for (const g of glows) g.light.intensity = (g.base * (0.8 + 0.2 * Math.sin(now / 260 + g.phase))) * (0.6 + 0.8 * a);
+      for (const g of glows) g.light.intensity = (g.base * (0.8 + 0.2 * Math.sin(now / 260 + g.phase))) * (0.8 + 0.8 * a);
       for (const z of zs) {
         const p = ((now / 2400) + z.k / 3) % 1;
         z.s.position.set(z.x + 0.1 + p * 0.3, z.y + 0.1 + p * 0.55, z.z);
@@ -271,7 +285,9 @@ export function buildRoom({ map, roomId, content }) {
         const d = e.label.position.distanceTo(camera.position);
         e.label.visible = d < LABEL_NEAR;
         e.label.material.opacity = Math.max(0, Math.min(1, (LABEL_NEAR - d) / 2));
-        const k = Math.max(0.55, Math.min(1.5, d / 4)); // 靠近時名牌縮小，不擋住畫面
+        if (e.ob && e.res?.kind === 'puzzle' && e.res.puzzle.object === targetObj) e.label.material.opacity *= 0.65 + 0.35 * Math.sin(now / 220); // 現在該做的那關：名牌閃
+        let k = Math.max(0.55, Math.min(1.5, d / 4)); // 靠近時名牌縮小，不擋住畫面
+        if (e.ob && d < 3.2) k *= 1 + 0.07 * Math.sin(now / 260 + e.ob.x); // 靠近可互動物件：名牌輕微脈動
         e.label.scale.set(e.label.userData.w * k, 0.17 * k, 1);
       }
     },

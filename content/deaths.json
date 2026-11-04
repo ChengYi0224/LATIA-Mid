@@ -29,17 +29,17 @@
     { "id": "d_e_integrate", "no": 26, "origin": "r401", "title": "我來整合就好", "action": "在分工表的「整合」欄寫上自己的名字", "text": "你整合了五種字型、三種格式，還有一份沒人寫的結論。", "tip": "", "omen": null, "art": "death_integrate" },
     { "id": "d_e_yearbook", "no": 27, "origin": "hall", "title": "幫大家拍照", "action": "報名畢業紀念冊的攝影", "text": "紀念冊上，你只出現在「攝影」那一欄。", "tip": "", "omen": null, "art": "death_yearbook" },
     { "id": "d_e_survey", "no": 28, "origin": "hall", "title": "填個問卷而已", "action": "掃布告欄上學長的問卷 QR code", "text": "問卷有 87 題，最後一題要你轉發給 30 個人。", "tip": "", "omen": null, "art": "death_survey" },
-    { "id": "d_e_delivery", "no": 29, "origin": "pantry", "title": "湊免運", "action": "叫宵夜外送，多點一樣湊免運", "text": "為了省 39 元運費，你多花了 200。", "tip": "", "omen": null, "art": "death_delivery" },
-    { "id": "d_e_drinks", "no": 30, "origin": "pantry", "title": "第二杯半價", "action": "在群組揪宵夜飲料，先幫大家代墊", "text": "你墊了 12 杯，收到 8 句「等等轉你」。", "tip": "", "omen": null, "art": "death_drinks" },
+    { "id": "d_e_delivery", "no": 29, "origin": "hall", "title": "湊免運", "action": "叫宵夜外送，多點一樣湊免運", "text": "為了省 39 元運費，你多花了 200。", "tip": "", "omen": null, "art": "death_delivery" },
+    { "id": "d_e_drinks", "no": 30, "origin": "hall", "title": "第二杯半價", "action": "在群組揪宵夜飲料，先幫大家代墊", "text": "你墊了 12 杯，收到 8 句「等等轉你」。", "tip": "", "omen": null, "art": "death_drinks" },
     { "id": "d_e_labsignup", "no": 31, "origin": "r503", "title": "去實驗室看看", "action": "在教授的「有興趣的同學請留名」寫上名字", "text": "看看的意思是，碩班讀五年。", "tip": "", "omen": null, "art": "death_labsignup" },
     { "id": "d_e_seniorcode", "no": 32, "origin": "r503", "title": "幫看一下就好", "action": "幫學長看一下 code，順手修了一個 bug", "text": "學長畢業了，你成了它唯一的維護者。", "tip": "", "omen": null, "art": "death_seniorcode" },
     { "id": "d_e_format", "no": 33, "origin": "r503", "title": "幫組員改格式", "action": "好心幫阿哲把另一份檔案的格式改好", "text": "他用舊檔蓋掉了，還說「我剛剛存好了」。", "tip": "", "omen": null, "art": "death_format" },
-    { "id": "d_e_printer", "no": 34, "origin": "office", "title": "幫忙拉卡紙", "action": "好心幫前一個人把卡住的紙拉出來", "text": "學長的整本論文開始印了，200 頁。", "tip": "", "omen": null, "art": "death_printer" },
-    { "id": "d_e_studygroup", "no": 35, "origin": "office", "title": "簽個名而已", "action": "在讀書會簽到表簽上名字", "text": "你被拉進 12 個群組，每個都在問誰要當窗口。", "tip": "", "omen": null, "art": "death_studygroup" },
-    { "id": "d_e_restore", "no": 36, "origin": "lab", "title": "存在桌面", "action": "用別台電腦寫，存在桌面", "text": "電腦還原了，你的報告也還原成不存在。", "tip": "", "omen": null, "art": "death_restore" },
-    { "id": "d_e_sync", "no": 37, "origin": "lab", "title": "兩台一起開", "action": "兩台電腦同時開同一份檔案", "text": "雲端幫你留下兩份「衝突的複本」，都只有一半。", "tip": "", "omen": null, "art": "death_sync" },
-    { "id": "d_e_usbseat", "no": 38, "origin": "lab", "title": "插著隨身碟佔位", "action": "插著隨身碟去裝水，先佔個位子", "text": "同學好心把隨身碟送去失物招領，招領處早上 9 點才開。", "tip": "", "omen": null, "art": "death_usbseat" },
-    { "id": "d_e_guardpc", "no": 39, "origin": "floor1", "title": "誰會修電腦", "action": "幫警衛伯伯把電腦修好", "text": "從此你是整棟系館的 IT，24 小時待命。", "tip": "", "omen": null, "art": "death_guardpc" },
-    { "id": "d_e_bbq", "no": 40, "origin": "floor1", "title": "有空的寫名字", "action": "在系烤報名表的主持人欄寫上名字", "text": "恭喜成為系烤主持人。", "tip": "", "omen": null, "art": "death_bbq" }
+    { "id": "d_e_printer", "no": 34, "origin": "hall", "title": "幫忙拉卡紙", "action": "好心幫前一個人把卡住的紙拉出來", "text": "學長的整本論文開始印了，200 頁。", "tip": "", "omen": null, "art": "death_printer" },
+    { "id": "d_e_studygroup", "no": 35, "origin": "hall", "title": "簽個名而已", "action": "在讀書會簽到表簽上名字", "text": "你被拉進 12 個群組，每個都在問誰要當窗口。", "tip": "", "omen": null, "art": "death_studygroup" },
+    { "id": "d_e_restore", "no": 36, "origin": "r503", "title": "存在桌面", "action": "用別台電腦寫，存在桌面", "text": "電腦還原了，你的報告也還原成不存在。", "tip": "", "omen": null, "art": "death_restore" },
+    { "id": "d_e_sync", "no": 37, "origin": "r503", "title": "兩台一起開", "action": "兩台電腦同時開同一份檔案", "text": "雲端幫你留下兩份「衝突的複本」，都只有一半。", "tip": "", "omen": null, "art": "death_sync" },
+    { "id": "d_e_usbseat", "no": 38, "origin": "r503", "title": "插著隨身碟佔位", "action": "插著隨身碟去裝水，先佔個位子", "text": "同學好心把隨身碟送去失物招領，招領處早上 9 點才開。", "tip": "", "omen": null, "art": "death_usbseat" },
+    { "id": "d_e_guardpc", "no": 39, "origin": "hall", "title": "誰會修電腦", "action": "幫警衛伯伯把電腦修好", "text": "從此你是整棟系館的 IT，24 小時待命。", "tip": "", "omen": null, "art": "death_guardpc" },
+    { "id": "d_e_bbq", "no": 40, "origin": "hall", "title": "有空的寫名字", "action": "在系烤報名表的主持人欄寫上名字", "text": "恭喜成為系烤主持人。", "tip": "", "omen": null, "art": "death_bbq" }
   ]
 }

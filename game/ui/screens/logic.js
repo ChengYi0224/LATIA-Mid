@@ -104,7 +104,7 @@ export function resultRows(results, endingId) {
   return [
     { label: timeLabel, value: results.clock },
     { label: '死亡次數', value: `${results.deaths} 次` },
-    { label: '圖鑑收集率', value: `${results.codexFound} / ${results.codexTotal}（${percent(results.codexFound, results.codexTotal)}%）` },
+    { label: '圖鑑收集率', value: `${results.codexFound} / ${results.codexTotal}，${percent(results.codexFound, results.codexTotal)}%` },
   ];
 }
 

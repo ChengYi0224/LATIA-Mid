@@ -5,6 +5,8 @@ import { MAPS, TILE } from '../maps.js';
 import { move, doorAt, doorAction, doorFront, spawnFor, resolveObject, planInteraction, blockedText } from '../world/logic.js';
 import { WALK_SPEED, TURN_SPEED, AIM_REACH, applyLook, walkVector, aimedObject, spawnYaw, clamp } from './fps-logic.js';
 import { promptFor, farText } from './prompt-logic.js';
+import { panelFor, quotaLine, resultFromEvent, buttonIndexForKey } from './panel-logic.js';
+import { buildSkin } from './panel-skins.js';
 import { buildRoom } from './room3d.js';
 import { createStyle } from './style/index.js';
 import { setStyle } from './kit.js';
@@ -29,6 +31,10 @@ export function initWorld(ctx, root) {
   link.rel = 'stylesheet';
   link.href = new URL('./world.css', import.meta.url).href;
   document.head.append(link);
+  const plink = document.createElement('link');   // 互動面板的專屬版面（panel-skins.js）
+  plink.rel = 'stylesheet';
+  plink.href = new URL('./panels.css', import.meta.url).href;
+  document.head.append(plink);
 
   // 房間清單面板預設收起來，只在 ?debug=1 顯示（可用右上角按鈕切換）；不動 rooms-panel 本身
   const app = document.getElementById('app');
@@ -84,7 +90,7 @@ export function initWorld(ctx, root) {
   setPanelEl.append(
     el('strong', '', '視角設定'),
     sliderRow('視角靈敏度', 'sens', 0.2, 3, 0.1, (v) => `${v.toFixed(1)}x`),
-    sliderRow('視野（FOV）', 'fov', 60, 100, 1, (v) => `${v}°`),
+    sliderRow('視野 FOV', 'fov', 60, 100, 1, (v) => `${v}°`),
     el('p', 'wd-shint', '覺得頭暈就把視野調小、靈敏度調低。'),
     closeSettingsBtn,
   );
@@ -108,7 +114,7 @@ export function initWorld(ctx, root) {
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   } catch (err) {
-    stage.append(el('div', 'wd-nogl', '這個瀏覽器開不了 3D（WebGL）。請換 Chrome、Edge 或 Firefox 再試。'));
+    stage.append(el('div', 'wd-nogl', '這個瀏覽器開不了 3D。請換 Chrome、Edge 或 Firefox 再試。'));
     console.error(err);
     return;
   }
@@ -270,32 +276,88 @@ export function initWorld(ctx, root) {
   gear.addEventListener('click', () => (settingsOpen ? closeSettings() : openSettings()));
   closeSettingsBtn.addEventListener('click', closeSettings);
 
-  // ---------- 對話框（彩蛋、線索） ----------
+  // ---------- 互動面板（線索、彩蛋、手機、AI 助教、門、還不能解的關卡） ----------
+  // 內容與按鈕由 panel-logic.js 決定；按鈕可滑鼠點、Tab／Enter、數字鍵，Esc 取消。
   function closeModal() {
     if (!modal) return;
     modal.node.remove();
     modal = null;
     wrap.focus({ preventScroll: true });
   }
-  function openModal({ title, text, buttons }) {
+  function setPanelResult(text) {
+    if (!modal || !text) return;
+    if (modal.skin?.result) modal.skin.result(text);
+    else if (modal.result) {
+      modal.result.textContent = text;
+      modal.result.hidden = false;
+      modal.result.style.animation = 'none'; void modal.result.offsetWidth; modal.result.style.animation = ''; // 重複按也會再閃一下
+    }
+    if (modal.skin?.meta) modal.skin.meta(quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0));
+    else if (modal.meta) modal.meta.textContent = quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0);
+  }
+  function pressPanelButton(b) {
+    if (b.stay) {
+      if (b.action) send(b.action); // 結果由 message／hint 事件顯示在面板裡
+      else setPanelResult(b.result);
+      return;
+    }
+    closeModal();
+    if (b.action) send(b.action);
+    tryLock(); // 點按鈕算使用者操作，順便把滑鼠鎖回來
+  }
+  function openPanel(def) {
     closeModal();
     if (locked()) document.exitPointerLock();
     const node = el('div', 'wd-modal');
-    const card = el('div', 'wd-card');
-    card.append(el('strong', '', title), el('p', '', text));
-    const row = el('div', 'wd-row');
-    for (const b of buttons) {
-      const btn = el('button', b.cls || '', b.label);
-      btn.type = 'button';
-      btn.addEventListener('click', () => { closeModal(); b.fn?.(); tryLock(); }); // 點按鈕算使用者操作，順便把滑鼠鎖回來
-      row.append(btn);
-    }
-    card.append(row);
+    const card = el('div', `wd-card wd-skin wd-skin-${def.skin ?? 'plain'}`);
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-label', def.title);
+    const head = el('div', 'wd-card-head');
+    if (def.kicker) head.append(el('span', 'wd-kicker', def.kicker));
+    head.append(el('strong', '', def.title));
+    const x = el('button', 'wd-x', '✕');
+    x.type = 'button';
+    x.setAttribute('aria-label', '關閉（Esc）');
+    x.addEventListener('click', () => { closeModal(); tryLock(); });
+    head.append(x);
+    card.append(head);
+    // 專屬版面：由 panel-skins.js 依物件決定
+    const btns = [];
+    let resultBox = null;
+    const h = {
+      clock: game.clockText?.(),
+      btn(i, cls = '', label) {
+        const b = def.buttons[i];
+        const btn = el('button', `ps-btn ${cls} ${b.primary ? 'is-primary' : ''}`.trim());
+        btn.type = 'button';
+        btn.append(el('kbd', '', String(i + 1)), document.createTextNode(` ${label ?? b.label}`));
+        btn.addEventListener('click', () => pressPanelButton(b));
+        btns[i] = btn;
+        return btn;
+      },
+      chip(label, fn, cls = '') {
+        const btn = el('button', `ps-chip ${cls}`.trim(), label);
+        btn.type = 'button';
+        btn.addEventListener('click', fn);
+        return btn;
+      },
+      resultBox(cls = '') {
+        resultBox = el('div', `wd-result ${cls}`.trim());
+        resultBox.hidden = true;
+        resultBox.setAttribute('role', 'status');
+        return resultBox;
+      },
+    };
+    const skin = buildSkin(def, h);
+    card.append(skin.node);
+    card.append(el('div', 'wd-card-foot', '數字鍵或 Tab／Enter 選擇　Esc 取消'));
     node.append(card);
     stage.append(node);
-    modal = { node };
+    modal = { node, card, result: resultBox, meta: null, def, btns: btns.filter(Boolean), skin };
     keys.clear();
-    row.lastElementChild.focus({ preventScroll: true }); // 預設停在最後一顆（算了／關閉），不會手滑
+    // 有風險的選項（彩蛋、門）預設停在「算了」；其他停在第一顆
+    const fi = def.buttons.findIndex((b) => b.focus);
+    (btns[fi >= 0 ? fi : 0] ?? modal.btns[0])?.focus({ preventScroll: true });
   }
 
   // ---------- 互動：和 rooms-panel 清單點同一個物件送一樣的動作 ----------
@@ -310,19 +372,10 @@ export function initWorld(ctx, root) {
     refreshLabels();
     kickUntil = performance.now() + 100;
     try { navigator.vibrate?.(30); } catch { /* 不支援就算了 */ }
-    if (res.kind === 'clue') showToast(`記下來了：${res.clue.name}`);
     stage.classList.remove('wd-hit'); void stage.offsetWidth; stage.classList.add('wd-hit');
     clearTimeout(hitTimer); hitTimer = setTimeout(() => stage.classList.remove('wd-hit'), 500);
-    if (plan.do === 'send') send(plan.action);
-    else if (plan.do === 'open_puzzle') bus.emit([{ type: 'ui_open_puzzle', puzzle: plan.puzzle }]);
-    else if (plan.do === 'text') openModal({ title: plan.title, text: plan.text, buttons: [{ label: '關閉', cls: 'primary' }] });
-    else if (plan.do === 'egg') {
-      const e = plan.egg;
-      openModal({
-        title: e.name, text: e.look,
-        buttons: [{ label: e.actionLabel, fn: () => send({ type: 'EGG', egg: e.id }) }, { label: '算了', cls: 'primary' }],
-      });
-    }
+    if (plan.do === 'open_puzzle') bus.emit([{ type: 'ui_open_puzzle', puzzle: plan.puzzle }]);
+    else openPanel(panelFor(res, plan, { game, content }));
   }
 
   // ---------- 鍵盤與滑鼠 ----------
@@ -334,7 +387,16 @@ export function initWorld(ctx, root) {
     if (e.ctrlKey || e.metaKey || e.altKey || typing(e.target)) return;
     if (settingsOpen) { if (e.key === 'Escape') { closeSettings(); e.preventDefault(); } return; }
     if (modal) {
-      if (e.key === 'Escape') { closeModal(); e.preventDefault(); }
+      if (e.key === 'Escape') { closeModal(); e.preventDefault(); return; }
+      const bi = buttonIndexForKey(e.key, modal.def.buttons.length);
+      if (bi >= 0) { e.preventDefault(); pressPanelButton(modal.def.buttons[bi]); return; }
+      if (e.key === 'Tab') { // 焦點只在面板的按鈕之間轉
+        e.preventDefault();
+        const all = [...modal.card.querySelectorAll('button:not([hidden]):not(:disabled)')];
+        const n = all.length;
+        const cur = all.indexOf(document.activeElement);
+        all[(cur + (e.shiftKey ? n - 1 : 1) + n) % n].focus({ preventScroll: true });
+      }
       return;
     }
     if (paused()) return;
@@ -382,7 +444,9 @@ export function initWorld(ctx, root) {
   bus.on('solved', () => screenFlash('ok'));
   bus.on('wrong', () => screenFlash('bad'));
   bus.on('blocked', (ev) => { showToast(blockedText(ev, content)); kickUntil = performance.now() + 220; });
-  bus.on('message', (ev) => { if (!overlayOpen()) showToast(ev.text); });
+  bus.on('message', (ev) => { if (modal) setPanelResult(resultFromEvent(ev)); else if (!overlayOpen()) showToast(ev.text); });
+  bus.on('hint', (ev) => setPanelResult(resultFromEvent(ev)));
+  bus.on('finale_locked', (ev) => setPanelResult(resultFromEvent(ev)));
   bus.on('death', closeModal);
   bus.on('ending', closeModal);
   // 新的一局：就算還在同一個房間，也要回到起點（不然會接著站在上一局的位置）

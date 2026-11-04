@@ -101,3 +101,11 @@
 .sc-card .big { min-height: 2.9em; }
 .sc-card .sc-stamp, .sc-ending .sc-stamp { animation: sc-stamp .35s .5s cubic-bezier(.3, 1.8, .5, 1) both; }
 @keyframes sc-stamp { 0% { opacity: 0; transform: translateY(-12px); } 100% { opacity: 1; transform: none; } }
+
+/* 圖鑑格子與結局畫面的圖示（和死因卡同一套） */
+.sc-cell .cell-art { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; background: #e6dfcb; border: 2px solid #1b1a17; }
+.sc-cell.off .cell-art { background: #10131a; border-color: #252b3a; }
+.sc-cell .cell-art .icon, .sc-ending .art-wrap .icon { font-size: 40px; line-height: 1; font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; }
+.sc-ending .art-wrap { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; background: #e6dfcb; }
+.sc-ending .art-wrap .icon { font-size: min(110px, 22vw, 20vh); }
+.icon.sil { filter: brightness(0) invert(.22); opacity: .9; }

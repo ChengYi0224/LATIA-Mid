@@ -1,5 +1,5 @@
-// 死因卡中間的圖示：每個死法對一個看得懂的 emoji，取代原本的隨機像素色塊。
-// key 是 content/deaths.json 的 art。沒列到的用 DEFAULT_ICON。
+// 死因卡、圖鑑格子、結局畫面共用的圖示：每個死法與結局對一個看得懂的 emoji，取代原本的隨機像素色塊。
+// key 是 content/deaths.json 與 endings.json 的 art。沒列到的用 DEFAULT_ICON（測試會檢查不會走到）。
 export const DEFAULT_ICON = '💀';
 
 export const DEATH_ICONS = {
@@ -43,8 +43,22 @@ export const DEATH_ICONS = {
   death_usbseat: '💾',
   death_guardpc: '🛠️',
   death_bbq: '🍖',
+  // 結局
+  end_dawn: '🌅',
+  end_no_submit: '🌤️',
+  end_normal: '🛏️',
+  end_true: '📩',
 };
 
 export function deathIcon(art) {
   return DEATH_ICONS[art] ?? DEFAULT_ICON;
+}
+
+/** 畫面上的圖示節點。silhouette 為真（圖鑑還沒解鎖）時變成同形狀的剪影。 */
+export function iconNode(art, { silhouette = false } = {}) {
+  const e = document.createElement('span');
+  e.className = 'icon' + (silhouette ? ' sil' : '');
+  e.textContent = deathIcon(art);
+  e.setAttribute('aria-hidden', 'true');
+  return e;
 }

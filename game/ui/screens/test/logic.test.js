@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { content, newGame } from '../../../core/test/helpers.js';
+import { readFileSync } from 'node:fs';
+import { DEATH_ICONS, DEFAULT_ICON, deathIcon } from '../death-icons.js';
 import { artGrid, codexCells, deathCardData, deathEventFromState, resultRows, percent, isFreshState, hash } from '../logic.js';
 
 test('佔位像素圖：同 key 一樣、左右對稱', () => {
@@ -59,4 +61,16 @@ test('剛開始的狀態才算全新', () => {
   assert.ok(isFreshState(game.getState(), content.texts.clock.start));
   game.dispatch({ type: 'DEBUG_DEATH', death: 'd_e_desk' });
   assert.ok(!isFreshState(game.getState(), content.texts.clock.start));
+});
+
+test('44 個死法與結局每個都有自己的圖示，不會走到預設圖或隨機像素', () => {
+  const read = (n) => JSON.parse(readFileSync(new URL(`../../../../content/${n}`, import.meta.url), 'utf8'));
+  const arts = [...read('deaths.json').deaths.map((d) => d.art), ...read('endings.json').endings.map((e) => e.art)];
+  assert.equal(arts.length, 44);
+  for (const a of arts) {
+    assert.ok(Object.hasOwn(DEATH_ICONS, a), `${a} 沒有圖示`);
+    assert.notEqual(deathIcon(a), DEFAULT_ICON, `${a} 走到預設圖`);
+  }
+  const icons = arts.map(deathIcon);
+  assert.equal(new Set(icons).size, 44, '有兩個死法共用同一個圖示');
 });

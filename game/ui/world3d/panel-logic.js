@@ -4,6 +4,8 @@
 // button：{ id, label, action?（要送給核心的動作）, stay?（按了不關面板，結果顯示在面板裡）, primary?, focus? }
 // 面板按鈕可用滑鼠點、Tab／Enter，或直接按對應的數字鍵；Esc 一律取消。
 
+import { dueChatter } from '../flavor-logic.js';
+
 const CLOSE = (label = '關閉') => ({ id: 'close', label, primary: true });
 
 function clueRelation(res, ctx) {
@@ -20,40 +22,41 @@ export function panelFor(res, plan, ctx) {
   switch (res.kind) {
     case 'clue':
       return {
-        kicker: '線索', title: res.clue.name, text: res.clue.text,
+        skin: res.clue.id, kicker: '線索', title: res.clue.name, text: res.clue.text,
         buttons: [{ id: 'inspect', label: '仔細想想', stay: true, result: clueRelation(res, ctx) }, CLOSE('記下來了')],
       };
     case 'egg':
       return {
-        kicker: '看看', title: res.egg.name, text: res.egg.look,
+        skin: res.egg.id, kicker: '看看', title: res.egg.name, text: res.egg.look,
         buttons: [{ id: 'egg', label: res.egg.actionLabel, action: { type: 'EGG', egg: res.egg.id } }, { ...CLOSE('算了'), focus: true }],
       };
     case 'phone':
       return {
-        kicker: '手機', title: '手機', text: '螢幕亮著：1 則未讀，課程公告。',
+        skin: 'phone', kicker: '手機', title: '手機', text: '螢幕亮著：1 則未讀，課程公告。',
+        chat: phoneThreads(ctx),
         buttons: [{ id: 'phone', label: '點開未讀', action: { type: 'PHONE' }, stay: true }, CLOSE('放回口袋')],
       };
     case 'hint': {
       const left = game.getState().aiQuota;
       const total = content.hints?.aiQuota ?? left;
       return {
-        kicker: 'AI 助教', title: 'AI 助教', text: '需要提示嗎？每問一次會用掉一次額度。',
+        skin: 'hint', kicker: 'AI 助教', title: 'AI 助教', text: '需要提示嗎？每問一次會用掉一次額度。',
         meta: quotaLine(left, total),
         buttons: [{ id: 'hint', label: '問提示', action: { type: 'HINT' }, stay: true }, CLOSE('不問了')],
       };
     }
     case 'door':
       return {
-        kicker: '大門', title: res.name ?? '大門', text: '門就在眼前。要推開它嗎？',
+        skin: 'door', kicker: '大門', title: res.name ?? '大門', text: '門就在眼前。要推開它嗎？',
         buttons: [{ id: 'door', label: '推開門', action: { type: 'DOOR' } }, { ...CLOSE('再想想'), focus: true }],
       };
     case 'puzzle': {
       const p = res.puzzle;
       if (game.isSolved(p.id)) {
-        return { kicker: '已解開', title: p.title, text: '這關已經解開了。', buttons: [CLOSE('知道了')] };
+        return { skin: 'solved', puzzleId: p.id, kicker: '已解開', title: p.title, text: '這關已經解開了。', buttons: [CLOSE('知道了')] };
       }
       // 還不能解：列出相關線索
-      return { kicker: '還不能解', title: res.name ?? p.title, text: plan.text, buttons: [CLOSE('知道了')] };
+      return { skin: 'locked', puzzleId: p.id, notes: lockedNotes(p.id, ctx), kicker: '還不能解', title: res.name ?? p.title, text: plan.text, buttons: [CLOSE('知道了')] };
     }
     default:
       return { kicker: '', title: plan.title ?? '', text: plan.text ?? '', buttons: [CLOSE()] };
@@ -77,4 +80,26 @@ export function buttonIndexForKey(key, count) {
   if (!/^[1-9]$/.test(key)) return -1;
   const i = Number(key) - 1;
   return i < count ? i : -1;
+}
+
+/** 手機訊息串：到時間的訊息依寄件人分組（純資料，畫面在 panel-skins.js）。 */
+export function phoneThreads(ctx) {
+  const list = ctx.content?.texts?.flavor?.chatter ?? [];
+  const clock = ctx.game.getState().clock ?? 0;
+  const due = dueChatter(list, clock, new Set());
+  const threads = [];
+  for (const i of due) {
+    const c = list[i];
+    if (c.narration) continue;
+    let t = threads.find((x) => x.from === c.from);
+    if (!t) { t = { from: c.from, messages: [] }; threads.push(t); }
+    t.messages.push(c.text);
+  }
+  return threads;
+}
+
+/** 「還不能解」面板上的線索便條：[{ name, text }]。 */
+export function lockedNotes(pid, ctx) {
+  const rooms = ctx.content?.rooms?.list ?? [];
+  return rooms.flatMap((r) => r.clues).filter((c) => c.forPuzzle === pid).map((c) => ({ name: c.name, text: c.text }));
 }

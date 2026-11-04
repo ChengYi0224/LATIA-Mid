@@ -20,6 +20,8 @@ export const LIGHTS = {
   broadcast: ['#ff9ad0', 30], e_guardpc: ['#8fb8ff', 24], c_guard: ['#9fd0ff', 30], e_printer: ['#cfe0ff', 18],
 };
 export const SLEEPERS = ['c_sleeptalk'];
+// 要看的東西在背面的物件（螢幕背面的便利貼）：正面轉向開放那一側的反方向，背面才對著走道
+const BACK_TO_AISLE = new Set(['c_laptop_note']);
 // 北牆上的窗戶（x 座標；被物件或門佔住、不是牆就不蓋）
 const WINDOWS = { r401: [3, 4, 8], hall: [1, 22], r503: [6, 7] };
 const KIND_COLOR = { puzzle: '#f0b429', egg: '#e08bb0', clue: '#7fb8d9', door: '#3ec28f', phone: '#3ec28f', hint: '#3ec28f' };
@@ -147,6 +149,7 @@ export function buildRoom({ map, roomId, content }) {
       const long = ob.w > ob.h ? [[0, 1], [0, -1]] : ob.h > ob.w ? [[1, 0], [-1, 0]] : DIRS;
       dir = long.map((d) => ({ d, n: freeSteps(ob, d[0], d[1]) })).sort((a, b) => b.n - a.n)[0].d;
       g.position.set(ob.x + ob.w / 2, 0, ob.y + ob.h / 2);
+      if (BACK_TO_AISLE.has(ob.id)) dir = [-dir[0], -dir[1]]; // 內容在背面的物件：轉過來，讓背面朝走道
     }
     g.rotation.y = Math.atan2(dir[0], dir[1]);
     group.add(g);

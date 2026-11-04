@@ -287,7 +287,11 @@ export function initWorld(ctx, root) {
   function setPanelResult(text) {
     if (!modal || !text) return;
     if (modal.skin?.result) modal.skin.result(text);
-    else if (modal.result) { modal.result.textContent = text; modal.result.hidden = false; }
+    else if (modal.result) {
+      modal.result.textContent = text;
+      modal.result.hidden = false;
+      modal.result.style.animation = 'none'; void modal.result.offsetWidth; modal.result.style.animation = ''; // 重複按也會再閃一下
+    }
     if (modal.skin?.meta) modal.skin.meta(quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0));
     else if (modal.meta) modal.meta.textContent = quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0);
   }

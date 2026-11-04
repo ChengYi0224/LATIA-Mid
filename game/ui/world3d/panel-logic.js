@@ -48,7 +48,7 @@ export function panelFor(res, plan, ctx) {
     case 'door':
       return {
         skin: 'door', kicker: '大門', title: res.name ?? '大門', text: '門就在眼前。要推開它嗎？',
-        buttons: [{ id: 'door', label: '推開門', action: { type: 'DOOR' } }, { ...CLOSE('再想想'), focus: true }],
+        buttons: [{ id: 'door', label: '推開門', action: { type: 'DOOR' }, stay: true }, { ...CLOSE('再想想'), focus: true }],
       };
     case 'puzzle': {
       const p = res.puzzle;
@@ -102,4 +102,27 @@ export function phoneThreads(ctx) {
 export function lockedNotes(pid, ctx) {
   const rooms = ctx.content?.rooms?.list ?? [];
   return rooms.flatMap((r) => r.clues).filter((c) => c.forPuzzle === pid).map((c) => ({ name: c.name, text: c.text }));
+}
+
+/** 手機一般訊息串底下的三種回覆。 */
+export const PHONE_CHOICES = ['收到', '晚點回', '先不回'];
+
+const AUTO_SENDERS = new Set(['Moodle', '外送平台']);
+const REPLY_TEXT = {
+  軟工第三組: { 收到: '（已讀）好～辛苦組長了', 晚點回: '（已讀）OK，你先忙你的', 先不回: '（已讀）……好吧，晚點再說' },
+  系學會: { 收到: '學長：好喔，那改天再約！', 晚點回: '學長：沒問題，不急～', 先不回: '學長：看來學弟很忙，不打擾了' },
+  媽媽: { 收到: '媽媽：好，快去睡。', 晚點回: '媽媽：你這孩子，天都快亮了……', 先不回: '媽媽：（已讀）' },
+};
+
+/**
+ * 選了回覆之後，要顯示什麼：{ out（你送出的泡泡）, reply（對方回的泡泡）, status（結果列） }。
+ * 純函式，只是訊息文案；不影響遊戲進度。
+ */
+export function phoneReply(from, choice) {
+  const out = PHONE_CHOICES.includes(choice) ? choice : PHONE_CHOICES[0];
+  if (AUTO_SENDERS.has(from)) {
+    return { out, reply: '（這是自動通知，無法回覆）', status: `已回覆「${out}」，這是自動通知，沒有人會看到。` };
+  }
+  const reply = REPLY_TEXT[from]?.[out] ?? '（已讀）';
+  return { out, reply, status: `已回覆「${out}」` };
 }

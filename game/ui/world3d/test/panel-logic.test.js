@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { panelFor, resultFromEvent, buttonIndexForKey, quotaLine } from '../panel-logic.js';
+import { panelFor, resultFromEvent, buttonIndexForKey, quotaLine, phoneReply, PHONE_CHOICES } from '../panel-logic.js';
 
 const content = { puzzleById: { p1: { title: '筆電密碼鎖' } }, hints: { aiQuota: 3 } };
 const game = (over = {}) => ({
@@ -87,4 +87,19 @@ test('每個面板都帶 skin；手機面板有訊息串、未解關卡有線索
   assert.equal(panelFor({ kind: 'hint' }, null, { game: g, content: c }).skin, 'hint');
   assert.equal(panelFor({ kind: 'door', name: '大門' }, null, { game: g, content: c }).skin, 'door');
   assert.equal(panelFor({ kind: 'clue', clue: { id: 'c_x', name: 'n', text: 't' } }, null, { game: g, content: c }).skin, 'c_x');
+});
+
+test('手機回覆：每個寄件人、每種回覆都有自己的泡泡、對方回應與結果', () => {
+  for (const from of ['軟工第三組', '系學會', '媽媽', 'Moodle', '外送平台', '不認識的人']) {
+    for (const c of PHONE_CHOICES) {
+      const r = phoneReply(from, c);
+      assert.equal(r.out, c);
+      assert.ok(r.reply && r.status.includes(c), `${from}/${c}`);
+    }
+  }
+  assert.match(phoneReply('Moodle', '收到').reply, /自動通知/);
+});
+
+test('大門按鈕留在面板裡（上鎖時訊息顯示在面板）', () => {
+  assert.equal(panelFor({ kind: 'door' }, null, ctx()).buttons[0].stay, true);
 });

@@ -35,6 +35,8 @@
 .ph-hint { width: 100%; font-size: 11px; color: #9aa3b8; }
 .ph-choice { border-radius: 14px !important; background: #243049 !important; }
 .ph-send { border-radius: 14px !important; background: #2f7d4f !important; border-color: #4cc57f !important; padding: 6px 12px !important; }
+.ph-bub.typing { animation: ps-blink .6s infinite alternate; color: #9aa3b8; }
+.ph-status { flex: 1; padding: 6px 10px; border-radius: 8px; background: #1d332d; color: #9be3b4; font-size: 12px; }
 .ph-close { margin-left: auto; }
 
 /* ---- AI 助教 ---- */

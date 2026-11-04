@@ -8,7 +8,7 @@ import {
 
 test('地圖和資料對得上：物件齊全、門和 exits 一致、每個物件走得到', () => {
   assert.deepEqual(checkMaps(MAPS, content), []);
-  assert.equal(Object.keys(MAPS).length, 7);
+  assert.equal(Object.keys(MAPS).length, 3);
 });
 
 test('20 個彩蛋物件、8 個謎題物件都在地圖上', () => {
@@ -44,14 +44,14 @@ test('靠近物件才找得到，裝飾不算', () => {
 
 test('門：站在門格上才算；進房間站在通往來處的門前', () => {
   const m = MAPS.hall;
-  const d = m.doors.find((x) => x.to === 'pantry');
+  const d = m.doors.find((x) => x.to === 'r503');
   assert.equal(doorAt(m, { x: (d.x + 0.5) * TILE, y: (d.y + 0.5) * TILE }), d);
   assert.equal(doorAt(m, doorFront(m, d)), null);
-  const sp = spawnFor(m, 'floor1');
+  const sp = spawnFor(m, 'r503');
   assert.equal(tileAt(m, Math.floor(sp.x / TILE), Math.floor(sp.y / TILE)), '.');
-  const lab = m.doors.find((x) => x.to === 'lab');
-  assert.equal(Math.floor(sp.x / TILE), 18);
-  assert.equal(Math.floor(spawnFor(m, 'lab').x / TILE), lab.x);
+  assert.equal(Math.floor(sp.x / TILE), d.x);
+  const d401 = m.doors.find((x) => x.to === 'r401');
+  assert.equal(Math.floor(spawnFor(m, 'r401').x / TILE), d401.x);
 });
 
 test('互動動作和房間清單一樣', () => {
@@ -80,10 +80,9 @@ test('謎題還沒開放時顯示線索；解完後說已解開', () => {
 
 test('被擋的門：核心給條件，這裡轉成文字', () => {
   const g = newGame();
-  const ev = g.dispatch({ type: 'GO', room: 'pantry' })[0];
+  const ev = g.dispatch({ type: 'GO', room: 'r503' })[0];
   assert.equal(ev.type, 'blocked');
-  assert.match(blockedText(ev, content), /門鎖著/);
-  assert.match(blockedText(ev, content), new RegExp(content.puzzleById.p3.title));
+  assert.match(blockedText(ev, content), /鑰匙/);
 });
 
 test('對不準窄門口時會自動帶進去，差太多就不會', () => {

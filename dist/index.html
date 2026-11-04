@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- source-hash: 57af4ac89b6eb6cd4fc038885dfae1de00532c5036727b2e3a6c02290124709e -->
+<!-- source-hash: f666919b5b9b49483cad2603c2fba0123302a15123b432d2aac3588f193b7822 -->
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
@@ -12,11 +12,14 @@
 /* 像素風：關掉字型平滑，圓角與柔邊陰影不用 */
 html { font-synthesis: none; -webkit-font-smoothing: none; font-smooth: never; text-rendering: optimizeSpeed; }
 canvas { image-rendering: pixelated; }
+html, body { overflow: hidden; height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 12px/1.5 var(--font); }
-#app { display: grid; grid-template-columns: 1fr 380px; grid-template-rows: auto 1fr; gap: 8px; min-height: 100vh; padding: 8px; }
-#hud-root { grid-column: 1 / -1; }
-#world-root { background: var(--panel); border: 2px solid var(--line); border-radius: 0; min-height: 200px; }
-#rooms-root { background: var(--panel); border: 2px solid var(--line); border-radius: 0; padding: 10px; overflow-y: auto; max-height: calc(100vh - 16px); }
+/* 3D 畫面佔滿視窗，HUD 與房間清單疊在上面 */
+#app { height: 100vh; overflow: hidden; }
+#world-root { position: fixed; inset: 0; background: var(--bg); }
+#hud-root { position: fixed; top: 6px; left: 6px; right: 6px; z-index: 60; pointer-events: none; }
+#rooms-root { position: fixed; top: 80px; right: 8px; bottom: 44px; width: 340px; z-index: 65; background: rgba(31,35,45,.95); border: 2px solid var(--line); border-radius: 0; padding: 10px; overflow-y: auto; }
+#rooms-root[hidden] { display: none; }
 button { font-synthesis: none; background: #2b3040; color: var(--fg); border: 2px solid var(--line); border-radius: 0; padding: 3px 8px; cursor: pointer; font: inherit; }
 button:hover:not(:disabled) { border-color: var(--accent); }
 button { box-shadow: 2px 2px 0 #0b0d12; }

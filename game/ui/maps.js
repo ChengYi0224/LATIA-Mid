@@ -1,7 +1,8 @@
-// 7 個房間的格子地圖與物件位置（WP2）。key 是房間 id，和 content/rooms.json 一致。
+// 3 個房間的格子地圖與物件位置（WP2）。key 是房間 id，和 content/rooms.json 一致。
 // 單位是格（TILE 像素）。tiles：'#' 牆、'.' 地板、'D' 門。物件 id 對應：
 //   謎題 → puzzles.json 的 object；彩蛋 → eggs.json 的 id；線索 → rooms.json 的 clue id；
 //   另外有 door（401 大門）、phone、hint。deco 是純裝飾（不能互動，會擋路）。
+// signs：不能互動的假門（只畫在牆上），{ x, y, text }，x、y 是北牆的格子。
 // 目前都是程式畫的佔位色塊，WP7 之後可換素材。
 export const TILE = 16;
 
@@ -10,10 +11,10 @@ const o = (id, x, y, color, icon, w = 1, h = 1) => ({ id, x, y, w, h, color, ico
 const deco = (id, x, y, color, w = 1, h = 1) => ({ id, x, y, w, h, color, icon: '', solid: true, deco: true });
 
 // 依大小與門的位置產生外牆和地板；門在牆上，spawn 是門前面那一格
-function room({ w, h, doors, objects, floor, wall }) {
+function room({ w, h, doors, objects, floor, wall, signs = [] }) {
   const grid = Array.from({ length: h }, (_, y) => Array.from({ length: w }, (_, x) => (x === 0 || y === 0 || x === w - 1 || y === h - 1 ? '#' : '.')));
   for (const d of doors) grid[d.y][d.x] = 'D';
-  return { w, h, tiles: grid.map((r) => r.join('')), doors, objects, floor, wall };
+  return { w, h, tiles: grid.map((r) => r.join('')), doors, objects, floor, wall, signs };
 }
 
 export const MAPS = {
@@ -41,79 +42,51 @@ export const MAPS = {
     ],
   }),
   hall: room({
-    w: 24, h: 9, floor: '#bfc3cc', wall: '#59607a',
-    doors: [
-      { x: 3, y: 0, to: 'r401' }, { x: 8, y: 0, to: 'pantry' }, { x: 14, y: 0, to: 'r503' }, { x: 20, y: 0, to: 'office' },
-      { x: 5, y: 8, to: 'lab' }, { x: 18, y: 8, to: 'floor1' },
+    w: 26, h: 11, floor: '#bfc3cc', wall: '#59607a',
+    doors: [{ x: 3, y: 0, to: 'r401' }, { x: 12, y: 0, to: 'r503' }],
+    signs: [
+      { x: 19, y: 0, text: '系辦（門關著）' },
+      { x: 24, y: 0, text: '樓梯↓一樓（鐵捲門關著）' },
     ],
     objects: [
-      o('switch_panel', 11, 0, '#d4c04a', '燈'),
-      o('c_floorplan', 12, 0, '#7fb8d9', '圖'),
-      o('c_plaque', 17, 0, '#c9a24a', '匾'),
-      o('e_yearbook', 1, 3, '#e08bb0', '冊'),
-      o('e_survey', 22, 3, '#8fd0c0', '問'),
+      o('switch_panel', 7, 0, '#d4c04a', '燈'),
+      o('c_floorplan', 8, 0, '#7fb8d9', '圖'),
+      o('c_plaque', 15, 0, '#c9a24a', '匾'),
+      o('keypad', 18, 0, '#3a3f4f', '鍵'),
+      o('e_studygroup', 20, 0, '#e6d3a0', '簽'),
+      o('e_bbq', 22, 0, '#d98a4a', '烤'),
+      o('vending', 2, 9, '#d94f4f', '販', 2, 1),
+      o('c_pantry_board', 5, 10, '#f4f4f4', '板'),
+      o('e_drinks', 6, 10, '#8fc9a0', '飲'),
+      o('e_delivery', 1, 5, '#f09a3e', '送'),
+      deco('deco_sofa', 7, 8, '#7b5ea7', 3, 1),
+      o('broadcast', 12, 9, '#c44f7a', '播', 2, 1),
+      o('c_broadcast_manual', 14, 10, '#f4f4f4', '說'),
+      o('c_guard', 15, 10, '#e0a870', '警'),
       o('phone', 10, 5, '#3ec28f', '機'),
       o('hint', 13, 5, '#f0b429', '助'),
-      deco('deco_bench', 6, 4, '#8a7a66', 3, 1),
-      deco('deco_bench2', 16, 4, '#8a7a66', 3, 1),
-    ],
-  }),
-  pantry: room({
-    w: 14, h: 10, floor: '#d8c7b0', wall: '#7a6048',
-    doors: [{ x: 2, y: 9, to: 'hall' }],
-    objects: [
-      o('vending', 10, 1, '#d94f4f', '販', 2, 1),
-      o('c_pantry_board', 5, 0, '#f4f4f4', '板'),
-      o('e_delivery', 2, 3, '#f09a3e', '送'),
-      o('e_drinks', 7, 3, '#8fc9a0', '飲'),
-      deco('deco_sofa', 9, 6, '#7b5ea7', 3, 1),
+      o('e_yearbook', 1, 2, '#e08bb0', '冊'),
+      o('c_trash_notice', 21, 1, '#9a9a9a', '桶'),
+      o('e_printer', 23, 2, '#cfd3da', '印'),
+      deco('deco_counter', 17, 6, '#8a6a50', 4, 1),
+      o('e_guardpc', 22, 6, '#5a7fb0', '腦'),
+      o('e_survey', 24, 4, '#8fd0c0', '問'),
     ],
   }),
   r503: room({
-    w: 14, h: 10, floor: '#aab4c0', wall: '#454e63',
-    doors: [{ x: 2, y: 9, to: 'hall' }],
+    w: 16, h: 11, floor: '#aab4c0', wall: '#454e63',
+    doors: [{ x: 2, y: 10, to: 'hall' }],
     objects: [
-      o('bookshelf', 10, 1, '#8b5a2b', '書', 2, 1),
-      o('c_sleeptalk', 4, 3, '#e8b49a', '哲'),
       o('e_labsignup', 2, 0, '#e8e0a0', '板'),
-      o('e_seniorcode', 8, 6, '#4f6bd1', '腦'),
+      o('bookshelf', 11, 1, '#8b5a2b', '書', 2, 1),
+      o('c_sleeptalk', 4, 3, '#e8b49a', '哲'),
+      deco('deco_desk', 6, 3, '#7c6a58', 2, 1),
       o('e_format', 4, 6, '#9fb4d9', '檔'),
-      deco('deco_desk', 7, 3, '#7c6a58', 2, 1),
-    ],
-  }),
-  office: room({
-    w: 14, h: 10, floor: '#d9d3c0', wall: '#5e6b58',
-    doors: [{ x: 11, y: 9, to: 'hall' }],
-    objects: [
-      o('keypad', 6, 0, '#3a3f4f', '鍵'),
-      o('c_trash_notice', 2, 5, '#9a9a9a', '桶'),
-      o('e_printer', 10, 2, '#cfd3da', '印'),
-      o('e_studygroup', 4, 2, '#e6d3a0', '簽'),
-      deco('deco_desk', 7, 4, '#8a7a66', 3, 1),
-    ],
-  }),
-  lab: room({
-    w: 18, h: 10, floor: '#9fb0c4', wall: '#2f3a52',
-    doors: [{ x: 2, y: 0, to: 'hall' }],
-    objects: [
-      o('lab_pc', 9, 2, '#2f2f3a', '電', 2, 1),
-      o('e_restore', 4, 4, '#6f86b0', '電'),
-      o('e_sync', 6, 4, '#6fb0a0', '雲'),
-      o('e_usbseat', 12, 6, '#b0a06f', '碟'),
-      deco('deco_row1', 3, 7, '#566078', 4, 1),
-      deco('deco_row2', 10, 4, '#566078', 4, 1),
-    ],
-  }),
-  floor1: room({
-    w: 18, h: 10, floor: '#c4b9a8', wall: '#6a4a4a',
-    doors: [{ x: 14, y: 0, to: 'hall' }],
-    objects: [
-      o('broadcast', 3, 1, '#c44f7a', '播', 2, 1),
-      o('c_broadcast_manual', 6, 0, '#f4f4f4', '說'),
-      o('c_guard', 15, 5, '#e0a870', '警'),
-      o('e_guardpc', 12, 5, '#5a7fb0', '腦'),
-      o('e_bbq', 2, 5, '#d98a4a', '烤'),
-      deco('deco_counter', 11, 3, '#8a6a50', 5, 1),
+      o('e_seniorcode', 8, 6, '#4f6bd1', '腦'),
+      o('lab_pc', 12, 5, '#2f2f3a', '電', 2, 1),
+      o('e_restore', 7, 8, '#6f86b0', '電'),
+      o('e_sync', 9, 8, '#6fb0a0', '雲'),
+      o('e_usbseat', 13, 8, '#b0a06f', '碟'),
     ],
   }),
 };

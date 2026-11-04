@@ -1,0 +1,24 @@
+{
+  "eggs": [
+    { "id": "e_desk", "room": "r401", "name": "亂七八糟的桌面", "look": "桌上堆滿講義、飲料杯和充電線。", "actionLabel": "先整理乾淨再開始寫", "death": "d_e_desk" },
+    { "id": "e_tablet", "room": "r401", "name": "平板", "look": "追到一半的劇停在片頭。", "actionLabel": "看一集就好", "death": "d_e_tablet" },
+    { "id": "e_exam", "room": "r401", "name": "考古題", "look": "這章老師說「大概不會考」。", "actionLabel": "這章跳過", "death": "d_e_exam" },
+    { "id": "e_timetable", "room": "r401", "name": "牆上的課表", "look": "明天早上 8:10 有課。", "actionLabel": "明天早八先翹", "death": "d_e_timetable" },
+    { "id": "e_citation", "room": "r401", "name": "抄來的一句話", "look": "一句很好用的話，沒寫出處。", "actionLabel": "出處之後再補", "death": "d_e_citation" },
+    { "id": "e_whiteboard_role", "room": "r401", "name": "分工表", "look": "白板上的分工表，「整合」那一欄是空的。", "actionLabel": "寫上自己的名字", "death": "d_e_integrate" },
+    { "id": "e_yearbook", "room": "hall", "name": "紀念冊攝影徵求", "look": "畢業紀念冊徵求攝影，「攝影師不用入鏡喔」。", "actionLabel": "報名攝影", "death": "d_e_yearbook" },
+    { "id": "e_survey", "room": "hall", "name": "問卷 QR code", "look": "學長的畢業專題問卷：「填個問卷而已～」", "actionLabel": "掃來填", "death": "d_e_survey" },
+    { "id": "e_delivery", "room": "pantry", "name": "外送 App", "look": "肚子好餓，差一點就免運。", "actionLabel": "多點一樣湊免運", "death": "d_e_delivery" },
+    { "id": "e_drinks", "room": "pantry", "name": "手搖飲菜單", "look": "第二杯半價。", "actionLabel": "揪大家一起訂，我先墊", "death": "d_e_drinks" },
+    { "id": "e_labsignup", "room": "r503", "name": "教授的留言板", "look": "「有興趣來實驗室看看的同學，請留名。」", "actionLabel": "寫上名字", "death": "d_e_labsignup" },
+    { "id": "e_seniorcode", "room": "r503", "name": "學長的電腦", "look": "螢幕上貼著：「幫我看一下就好」。", "actionLabel": "看一下，順手修 bug", "death": "d_e_seniorcode" },
+    { "id": "e_format", "room": "r503", "name": "阿哲的另一份檔案", "look": "格式亂到不行。", "actionLabel": "幫他改好", "death": "d_e_format" },
+    { "id": "e_printer", "room": "office", "name": "印表機", "look": "卡紙了，上一個人的工作卡在一半。", "actionLabel": "幫忙把紙拉出來", "death": "d_e_printer" },
+    { "id": "e_studygroup", "room": "office", "name": "讀書會簽到表", "look": "「簽個名而已」。", "actionLabel": "簽名", "death": "d_e_studygroup" },
+    { "id": "e_restore", "room": "lab", "name": "隔壁那台電腦", "look": "開機很快，桌面很乾淨。", "actionLabel": "用這台寫，存在桌面", "death": "d_e_restore" },
+    { "id": "e_sync", "room": "lab", "name": "第二台電腦", "look": "雲端同步中。", "actionLabel": "兩台一起開同一份", "death": "d_e_sync" },
+    { "id": "e_usbseat", "room": "lab", "name": "空位子", "look": "想去裝個水。", "actionLabel": "插著隨身碟先佔位", "death": "d_e_usbseat" },
+    { "id": "e_guardpc", "room": "floor1", "name": "警衛室的電腦", "look": "便條：「誰會修？」", "actionLabel": "幫伯伯修好", "death": "d_e_guardpc" },
+    { "id": "e_bbq", "room": "floor1", "name": "系烤報名表", "look": "「缺主持人，有空的寫名字」。", "actionLabel": "寫上名字", "death": "d_e_bbq" }
+  ]
+}

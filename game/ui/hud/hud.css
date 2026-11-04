@@ -1,0 +1,50 @@
+/* WP6 HUD 樣式：像素風，全部用 CSS 畫，不用外部字型與圖 */
+#hud-root { position: relative; z-index: 60; } /* 比謎題浮層（50）高，解題時也能問助教 */
+.hd { display: flex; align-items: stretch; gap: 8px; padding: 6px 8px; padding-right: 190px; /* 右邊留給圖鑑／重新開始按鈕 */
+  background: #1a1d27; border: 2px solid var(--line); border-radius: 0; box-shadow: 0 0 0 2px #0b0d12, 3px 3px 0 2px #0b0d12; }
+.hd-left { display: flex; align-items: center; gap: 8px; }
+.hd-mid { flex: 1; min-width: 0; display: flex; align-items: center; }
+.hd-right { display: flex; align-items: center; gap: 8px; }
+
+.hd-clock { position: relative; display: flex; flex-direction: column; align-items: center; padding: 2px 10px; background: #0b0d12; border: 2px solid #4a5166; min-width: 96px; }
+.hd-clock-label { font-size: 12px; color: #8a90a4; letter-spacing: .15em; }
+.hd-clock-time { font: 24px/1.5 var(--font); color: #7fffa0; text-shadow: 2px 2px 0 #0b0d12; letter-spacing: .08em; }
+.hd-clock.late .hd-clock-time { color: #ffb347; text-shadow: 2px 2px 0 #0b0d12; }
+.hd-clock.jump { animation: hd-jump .5s steps(5); }
+.hd-clock-plus { position: absolute; right: -4px; top: -10px; font: 12px/1.5 var(--font); color: #ff6b6b; opacity: 0; pointer-events: none; }
+.hd-clock-plus.on { animation: hd-plus 1.6s steps(8) forwards; }
+@keyframes hd-jump { 0% { transform: translateY(0); } 30% { transform: translateY(-5px); } 60% { transform: translateY(2px); } 100% { transform: translateY(0); } }
+@keyframes hd-plus { 0% { opacity: 1; transform: translateY(0); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px); } }
+
+.hd-map-canvas { image-rendering: pixelated; display: block; flex: none; /* 不用 CSS 縮放，畫布本身就是顯示尺寸 */ }
+
+.hd-task { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 10px; background: #0b0d12; border: 2px solid #4a5166; border-left: 6px solid var(--accent); }
+.hd-task-tag { flex: none; font: 12px/1.5 var(--font); color: #1a1405; background: var(--accent); padding: 3px 6px; }
+.hd-task-body { font-size: 12px; line-height: 1.4; }
+
+.hd-ai, .hd-phone { position: relative; display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #12202a; border: 2px solid #3b7a8f; border-radius: 0; color: #dff6ff; box-shadow: 2px 2px 0 #0b0d12; }
+.hd-ai:hover:not(:disabled), .hd-phone:hover:not(:disabled) { border-color: #ffe27a; transform: translate(-1px, -1px); }
+.hd-ai.empty { background: #2a1a1a; border-color: #8f3b3b; }
+.hd-ai-quota { font: 12px/1.5 var(--font); color: #7fe3ff; }
+.hd-ai.empty .hd-ai-quota { color: #ff8a8a; }
+.hd-icon { image-rendering: pixelated; flex: none; }
+.hd-phone { background: #2a2a1a; border-color: #8f843b; }
+.hd-phone-badge { position: absolute; left: 4px; top: -8px; min-width: 18px; padding: 2px 4px; background: var(--danger); color: #fff; font: 12px/1.5 var(--font); text-align: center; border: 2px solid #0b0d12; animation: hd-blink 1.2s steps(2) infinite; }
+.hd-phone-text { font-size: 12px; }
+@keyframes hd-blink { 50% { background: #ff8a8a; } }
+
+.hd-bubble { position: fixed; top: 92px; left: 50%; transform: translateX(-50%); z-index: 70; max-width: min(520px, 92vw); padding: 8px 14px; background: #0b0d12; color: #fff; border: 2px solid #7fe3ff; box-shadow: 3px 3px 0 #000; cursor: pointer; }
+.hd-bubble[hidden] { display: none; }
+.hd-bubble.out { border-color: #ff8a8a; }
+.hd-bubble.idle { border-color: #f4f1de; border-style: dashed; }
+.hd-bubble-who { font: 12px/1.5 var(--font); color: #7fe3ff; margin-bottom: 4px; }
+.hd-bubble.out .hd-bubble-who { color: #ff8a8a; }
+.hd-bubble.idle .hd-bubble-who { color: #d7d3bd; }
+.hd-bubble-text { font-size: 12px; line-height: 1.5; }
+.hd-bubble-meta { margin-top: 4px; font: 12px/1.5 var(--font); color: #8a90a4; }
+.hd-bubble-meta:empty { display: none; }
+
+@media (max-width: 1100px) {
+  .hd { flex-wrap: wrap; padding-right: 8px; }
+  .hd-mid { flex-basis: 100%; order: 3; }
+}

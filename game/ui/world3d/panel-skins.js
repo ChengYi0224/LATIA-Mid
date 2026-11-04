@@ -4,6 +4,8 @@
 // h.btn(i, cls, label?) 建出 def.buttons[i] 的按鈕（會自動加數字鍵標記、接上點擊）；
 // h.chip(label, fn, cls) 建出只改畫面、不送動作的小按鈕（Tab 可到、Enter 可按）。
 
+import { PHONE_CHOICES, phoneReply } from './panel-logic.js';
+
 const mk = (tag, cls, text) => {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -35,7 +37,7 @@ function phone(def, h) {
   add(node, bar, body, reply);
   const threads = [...(def.chat ?? [])];
   const ann = { from: '課程公告', unread: true, messages: ['【課程公告】老師發了一則新公告。（未讀）'] };
-  const sent = {}; // 各串自己回的訊息
+  const sent = {}; // 各串自己回的：{ out, reply, status, replied }
   let announcementOpened = false;
   const bubble = (cls, text) => { const b = mk('div', `ph-bub ${cls}`, text); body.append(b); body.scrollTop = body.scrollHeight; return b; };
 
@@ -47,7 +49,7 @@ function phone(def, h) {
       title.textContent = '訊息';
       for (const t of [ann, ...threads]) {
         const row = h.chip('', () => show('chat', t), 'ph-thread');
-        const last = (sent[t.from] ?? []).at(-1) ?? t.messages.at(-1);
+        const last = sent[t.from]?.out ? `你：${sent[t.from].out}` : t.messages.at(-1);
         add(row, mk('span', 'ph-av', t.from.slice(0, 1)), add(mk('span', 'ph-tx'), mk('b', '', t.from), mk('small', '', last)), t.unread && !announcementOpened ? mk('i', 'ph-dot', '1') : null);
         body.append(row);
       }
@@ -55,18 +57,44 @@ function phone(def, h) {
     }
     title.textContent = th.from;
     for (const m of th.messages) bubble('in', m);
-    for (const m of sent[th.from] ?? []) bubble('out', m);
+    const my = sent[th.from];
+    if (my) { bubble('out', my.out); if (my.replied) bubble('in', my.reply); else my.typing = bubble('in typing', '…'); }
     if (th === ann) {
       if (announcementOpened) { for (const m of announcementOpened) bubble('self', m); }
       else add(reply, mk('span', 'ph-hint', '點下面的框送出：'), h.btn(0, 'ph-send', '點開這則未讀'));
       add(reply, h.btn(1, 'ph-close', '放回口袋'));
       return;
     }
-    add(reply, mk('span', 'ph-hint', '回覆（只是回個話）：'));
-    for (const t of ['收到', '晚點回', '先不回']) {
-      reply.append(h.chip(t, () => { (sent[th.from] ??= []).push(t); show('chat', th); }, 'ph-choice'));
+    const done = sent[th.from];
+    if (done) {
+      // 已經回過：回覆框鎖住，不能重複送
+      const st = mk('div', 'ph-status', done.status);
+      st.setAttribute('role', 'status');
+      add(reply, st);
+    } else {
+      add(reply, mk('span', 'ph-hint', '回覆（只是回個話）：'));
+      PHONE_CHOICES.forEach((t) => {
+        const c = h.chip(t, () => choose(th, t), 'ph-choice');
+        c.dataset.choice = t;
+        c.title = `回覆「${t}」`;
+        reply.append(c);
+      });
     }
     add(reply, h.btn(1, 'ph-close', '放回口袋'));
+  }
+
+  // 選了回覆：馬上出現自己的泡泡、對方稍後回，回覆框換成結果並鎖住
+  function choose(th, text) {
+    if (sent[th.from]) return;
+    const r = phoneReply(th.from, text);
+    sent[th.from] = { ...r, replied: false };
+    show('chat', th);
+    reply.querySelector('.ph-close')?.focus({ preventScroll: true }); // 回覆框收起來了，焦點移到「放回口袋」
+    setTimeout(() => {
+      const my = sent[th.from];
+      my.replied = true;
+      if (my.typing?.isConnected) { my.typing.className = 'ph-bub in'; my.typing.textContent = my.reply; body.scrollTop = body.scrollHeight; }
+    }, 450);
   }
   show('list');
   // 手機按鈕 0（點開未讀）按下後的結果，用聊天泡泡顯示

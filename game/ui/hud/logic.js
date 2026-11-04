@@ -1,17 +1,13 @@
 // HUD 的純邏輯：小地圖顯示哪些房間、任務文字、額度文字、卡關計時。不碰 DOM。
 
-/** 小地圖格位：4 欄 3 列，走廊橫跨整列，大致照實際地圖的上下位置排。 */
+/** 小地圖格位：2 欄 2 列，401 在左上、503 在右上，走廊橫跨整個下排。 */
 export const MINIMAP_LAYOUT = {
   r401: { col: 0, row: 0, span: 1 },
-  pantry: { col: 1, row: 0, span: 1 },
-  r503: { col: 2, row: 0, span: 1 },
-  office: { col: 3, row: 0, span: 1 },
-  hall: { col: 0, row: 1, span: 4 },
-  lab: { col: 0, row: 2, span: 1 },
-  floor1: { col: 3, row: 2, span: 1 },
+  r503: { col: 1, row: 0, span: 1 },
+  hall: { col: 0, row: 1, span: 2 },
 };
-export const MINIMAP_COLS = 4;
-export const MINIMAP_ROWS = 3;
+export const MINIMAP_COLS = 2;
+export const MINIMAP_ROWS = 2;
 
 /** 去過的房間 id 集合（目前所在一定算）。 */
 export function addVisited(visited, roomId) {

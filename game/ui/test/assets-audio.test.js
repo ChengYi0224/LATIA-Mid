@@ -68,7 +68,7 @@ test('素材表涵蓋所有地圖物件、死因卡圖、結局圖和主角，�
 });
 
 test('音效都有合法的音符，事件對得到音效', () => {
-  assert.deepEqual(SFX_NAMES, ['interact', 'solve', 'death', 'ending', 'step', 'bump', 'pickup', 'door', 'buzz', 'chain']);
+  assert.deepEqual(SFX_NAMES, ['interact', 'solve', 'death', 'ending', 'step', 'bump', 'pickup', 'door', 'buzz', 'chain', 'clear', 'wrong']);
   for (const n of SFX_NAMES) {
     const notes = sfxNotes(n);
     assert.ok(notes.length > 0 && sfxDuration(n) > 0 && sfxDuration(n) < 2, n);
@@ -85,7 +85,10 @@ test('音效都有合法的音符，事件對得到音效', () => {
   assert.equal(sfxForEvent('moved'), 'door');
   assert.equal(sfxForEvent('item'), 'pickup');
   assert.equal(sfxForEvent('cutscene'), 'chain');
-  assert.equal(sfxForEvent('wrong'), null);
+  assert.equal(sfxForEvent('wrong'), 'wrong');
+  assert.equal(sfxForEvent('stage_cleared'), 'clear');
+  assert.equal(sfxForEvent('blocked'), 'bump');
+  assert.equal(sfxForEvent('nothing'), null);
 });
 
 test('靜音設定的存取', () => {

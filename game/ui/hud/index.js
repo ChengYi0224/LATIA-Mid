@@ -20,7 +20,7 @@ function drawIcon(canvas, name, color, px = 3) {
   rows.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') g.fillRect(x * px, y * px, px, px); }));
 }
 
-const SHORT = { r401: '401', hall: '走廊', pantry: '茶水', r503: '503', office: '系辦', lab: '電腦', floor1: '一樓' };
+const SHORT = { r401: '401', hall: '走廊', r503: '503' };
 
 export function initHud(ctx, root) {
   const { game, content, bus, send } = ctx;
@@ -75,7 +75,15 @@ export function initHud(ctx, root) {
   bubble.append(bubbleWho, bubbleText, bubbleMeta);
 
   const left = el('div', 'hd-left');
-  left.append(clock, mapCanvas);
+  const mapBox = el('div', 'hd-map');
+  const mapBtn = el('button', 'hd-map-btn', '地圖');
+  mapBtn.type = 'button';
+  const mapPop = el('div', 'hd-map-pop');
+  mapPop.hidden = true;
+  mapPop.append(mapCanvas);
+  mapBtn.addEventListener('click', () => { mapPop.hidden = !mapPop.hidden; });
+  mapBox.append(mapBtn, mapPop);
+  left.append(clock, mapBox);
   const mid = el('div', 'hd-mid');
   mid.append(task);
   const right = el('div', 'hd-right');

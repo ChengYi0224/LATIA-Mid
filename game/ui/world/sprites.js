@@ -375,11 +375,9 @@ export function drawSprite(g, ob, rect, t) {
 export const SPRITE_IDS = Object.keys(SPRITES);
 
 // ---------- 地板與牆 ----------
-// 每個房間一種地板：木地板、磁磚、黑白格、地毯、塑膠地磚、高架地板、磨石子
-const FLOORS = {
-  r401: 'planks', hall: 'tiles', pantry: 'checker', r503: 'carpet', office: 'lino', lab: 'panels', floor1: 'terrazzo',
-};
-const WALLS = { r401: 'brick', hall: 'paint', pantry: 'tilewall', r503: 'paint', office: 'paint', lab: 'paint', floor1: 'brick' };
+// 每個房間一種地板：401 木地板、走廊磁磚、503 地毯
+const FLOORS = { r401: 'planks', hall: 'tiles', r503: 'carpet' };
+const WALLS = { r401: 'brick', hall: 'paint', r503: 'paint' };
 
 const mix = (hex, f) => {
   const n = parseInt(hex.slice(1), 16);
@@ -405,24 +403,8 @@ export function drawFloor(g, roomId, tx, ty, base) {
       r(0, 15, 16, 1, mix(base, 0.85)); r(15, 0, 1, 16, mix(base, 0.85));
       r(1, 1, 3, 1, mix(base, 1.08));
       break;
-    case 'checker':
-      if ((tx + ty) % 2) r(0, 0, 16, 16, mix(base, 0.72));
-      r(0, 0, 8, 8, (tx + ty) % 2 ? mix(base, 0.72) : mix(base, 1.04));
-      r(8, 8, 8, 8, (tx + ty) % 2 ? mix(base, 0.72) : mix(base, 1.04));
-      break;
     case 'carpet':
       for (let i = 0; i < 10; i += 1) r(Math.floor(hash(tx, ty, i) * 16), Math.floor(hash(ty, tx, i + 20) * 16), 1, 1, mix(base, i % 2 ? 0.85 : 1.1));
-      break;
-    case 'lino':
-      r(0, 7, 16, 1, mix(base, 0.9)); r(0, 15, 16, 1, mix(base, 0.9));
-      r((ty % 2) * 8, 0, 1, 7, mix(base, 0.9)); r(((ty + 1) % 2) * 8, 8, 1, 7, mix(base, 0.9));
-      break;
-    case 'panels':
-      r(0, 0, 16, 1, mix(base, 1.1)); r(0, 0, 1, 16, mix(base, 1.1)); r(0, 15, 16, 1, mix(base, 0.8)); r(15, 0, 1, 16, mix(base, 0.8));
-      r(3, 3, 1, 1, mix(base, 0.75)); r(12, 3, 1, 1, mix(base, 0.75)); r(3, 12, 1, 1, mix(base, 0.75)); r(12, 12, 1, 1, mix(base, 0.75));
-      break;
-    case 'terrazzo':
-      for (let i = 0; i < 12; i += 1) r(Math.floor(hash(tx, ty, i) * 15), Math.floor(hash(ty, tx, i + 40) * 15), 1 + (i % 3 === 0), 1, i % 2 ? mix(base, 0.7) : mix(base, 1.15));
       break;
     default:
       if ((tx + ty) & 1) r(0, 0, 16, 16, 'rgba(0,0,0,.06)');
@@ -441,9 +423,6 @@ export function drawWall(g, roomId, tx, ty, base, faceBelow) {
         r(off, row * 4, 1, 3, mix(base, 0.75));
         if (hash(tx, ty * 4 + row, 7) > 0.7) r((off + 3) % 14, row * 4 + 1, 3, 1, mix(base, 1.12));
       }
-      break;
-    case 'tilewall':
-      for (let i = 0; i < 4; i += 1) { r(0, i * 4 + 3, 16, 1, mix(base, 0.85)); r(i * 4 + 3, 0, 1, 16, mix(base, 0.85)); }
       break;
     default: // 油漆牆：上淺下深、底下踢腳板
       r(0, 0, 16, 2, mix(base, 1.12));

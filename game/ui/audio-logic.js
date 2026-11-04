@@ -1,7 +1,7 @@
 // 音效的純邏輯（不碰 Web Audio），方便測試。
 // 每個音效是一串音符 { f: 頻率 Hz（0 = 休止）, t: 起始秒, d: 長度秒, w: 波形, v: 音量 0~1 }。
 
-export const SFX_NAMES = ['interact', 'solve', 'death', 'ending', 'step', 'bump', 'pickup', 'door', 'buzz', 'chain'];
+export const SFX_NAMES = ['interact', 'solve', 'death', 'ending', 'step', 'bump', 'pickup', 'door', 'buzz', 'chain', 'clear', 'wrong'];
 
 const note = (f, t, d, w = 'square', v = 0.5) => ({ f, t, d, w, v });
 
@@ -24,6 +24,10 @@ export const SFX = {
   door: [note(220, 0, 0.06, 'triangle', 0.4), note(165, 0.06, 0.1, 'triangle', 0.4)],
   // 手機震動
   buzz: [note(180, 0, 0.06, 'square', 0.25), note(180, 0.1, 0.06, 'square', 0.25)],
+  // 解開一步：上行兩音
+  clear: [note(659, 0, 0.07), note(988, 0.07, 0.12, 'square', 0.45)],
+  // 答錯：低音
+  wrong: [note(150, 0, 0.14, 'sawtooth', 0.4), note(110, 0.12, 0.16, 'sawtooth', 0.4)],
   // 警衛鎖門的鐵鍊聲
   chain: [note(310, 0, 0.05, 'sawtooth', 0.3), note(280, 0.07, 0.05, 'sawtooth', 0.3), note(330, 0.14, 0.05, 'sawtooth', 0.3), note(120, 0.3, 0.25, 'square', 0.45)],
 };
@@ -39,7 +43,7 @@ export function sfxDuration(name) {
 }
 
 /** 事件 type → 音效名（沒有對應就是 null）。 */
-const EVENT_SFX = { ui_interact: 'interact', item: 'pickup', solved: 'solve', death: 'death', ending: 'ending', moved: 'door', cutscene: 'chain' };
+const EVENT_SFX = { ui_interact: 'interact', item: 'pickup', solved: 'solve', death: 'death', ending: 'ending', moved: 'door', cutscene: 'chain', stage_cleared: 'clear', wrong: 'wrong', blocked: 'bump' };
 export function sfxForEvent(type) {
   return EVENT_SFX[type] ?? null;
 }

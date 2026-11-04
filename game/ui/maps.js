@@ -38,7 +38,6 @@ export const MAPS = {
       o('e_citation', 11, 6, '#b5cfe0', '引'),
       o('phone', 12, 3, '#3ec28f', '機'),
       o('hint', 10, 3, '#f0b429', '助'),
-      deco('deco_chair', 3, 3, '#7a6a52'),
     ],
   }),
   hall: room({

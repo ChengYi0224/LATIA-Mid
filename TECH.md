@@ -4,9 +4,9 @@
 
 ## 1. 技術選型
 
-- **純前端、不用 build**：vanilla JavaScript ES modules、HTML、CSS。不用 React，不用打包工具，也沒有 npm 相依套件。學生專案要好維護、隨時能跑，GitHub Pages 直接放 repo 根目錄就能上線。
+- **純前端**：vanilla JavaScript ES modules、HTML、CSS。不用 React，也沒有 npm 相依套件。唯一的外部程式是固定版本的 three.js（見下面「3D 與 three.js」），放在 `vendor/`，不用 CDN。`dist/` 由 `npm run build` 產生，雙擊就能離線玩。
 - **畫面分兩層**：
-  - Canvas 2D 負責地圖、角色走動、物件位置。
+  - three.js（WebGL）畫 3D 第一人稱場景：房間、物件、燈光、準星。
   - DOM 疊在上面，負責對話框、謎題介面、假 Moodle 頁、死因卡、圖鑑、HUD、結局。
   
   謎題和文字介面用 HTML 做比用 Canvas 畫字簡單很多，也比較好調。
@@ -273,7 +273,10 @@ index.html
 game/ui/main.js          載入資料、建立 game、把事件分給各模組（WP1）
 game/ui/bus.js           簡單的事件分發：on(type, fn)、emit(events)（WP1）
 game/ui/rooms-panel.js   不用走動的房間清單，最短路徑用（WP1）
-game/ui/world/           Canvas 地圖、角色、碰撞、互動判定（WP2）
+game/ui/world/logic.js     格子座標的碰撞、門、互動判定（3D 沿用，WP2）
+game/ui/world3d/         3D 第一人稱畫面：index.js（視角、輸入、暫停、設定）、room3d.js（蓋房間與燈光）、
+                         models.js（物件的 3D 長相）、kit.js（積木工具）、fps-logic.js（視角與準星的純邏輯）、style/（材質與燈光風格）
+vendor/three.min.js      three.js r170（見下）
 game/ui/maps.js          7 個房間的格子地圖、物件位置（WP2）
 game/ui/puzzles/         6 種 stage type 的通用介面（WP3），moodle.js（WP4）
 game/ui/screens/         開場、死因卡、圖鑑、結局、結算（WP5）
@@ -295,7 +298,7 @@ game/ui/debug-panel.js   除錯面板（WP8）
 
 - 所有圖都用素材 key，例如 `death.art`、`ending.art`，或地圖物件的 id。`game/ui/assets.js` 是一張對照表，格式是 `{ key: { color: '#hex', label: '平板', src: null } }`。
 - `src` 是 null 時，用 color 畫一個色塊，上面寫 label。換成真的圖片時只要填 `src: 'assets/xxx.png'`，載入失敗就自動退回色塊。
-- 畫面格子建議 16×16 像素，放大 3 倍顯示，Canvas 要設 `imageSmoothingEnabled = false`。
+- 3D 物件的長相寫在 `game/ui/world3d/models.js`，以物件 id 為 key，用方塊、圓柱、球拼出來。沒有專屬模型的物件會用 `maps.js` 的顏色拼一個方塊加字。`assets.js` 的色塊對照表是舊的 2D 畫面用的，3D 版不讀它。
 
 ## 9. 除錯網址
 
@@ -345,6 +348,29 @@ game/ui/debug-panel.js   除錯面板（WP8）
 2. 照正解全破後點開未讀：圖鑑不到 10 格時只出現「儲存空間不足」的梗；用 `?debug=1&unlock=all` 再走一次就拿到真結局，時鐘顯示 03:40。
 3. 第 6 關解完直接去一樓，拿到「人出來了，報告沒交」。
 4. 用 `?debug=1&clock=410` 再隨便死一次，按重來後拿到「天亮了」。
+
+## 3D 與 three.js
+
+只換了渲染層，`game/core/`、`content/*.json` 沒動；格子座標、碰撞、門、互動判定還是 `game/ui/world/logic.js` 和 `maps.js`。
+
+- **座標**：地圖的 1 格（16 像素）= 3D 的 1 單位，地圖 x 對應 3D 的 X，地圖 y 對應 3D 的 Z。牆高 2.6，眼睛高 1.45。碰撞還是 10 像素的框，在格子上算。
+- **視角**：`yaw = 0` 看地圖上方，往左轉 yaw 變大。`fps-logic.js` 是純邏輯（轉頭、WASD 的移動向量、準星對準物件），有測試（`game/ui/world3d/test/`）。
+- **準星互動**：從眼睛沿視線方向射一條線，找最先碰到的物件外框（外框放寬 4 像素），距離在 26 像素內才算；先碰到裝飾（椅子、長椅）就不算。按 E 或左鍵後走 `resolveObject` 和 `planInteraction`，和房間清單點同一個物件完全一樣。
+- **門**：走進門格就觸發，和 2D 時一樣。401 的門在鎖門前走進去是「門其實沒鎖」。
+- **暫停**：謎題浮層、死因卡、結局、圖鑑、世界自己的對話框、設定面板任何一個開著，就釋放滑鼠（`exitPointerLock`）、清掉按鍵、不更新位置。關掉後畫面上出現「點一下畫面開始」，點了才再鎖滑鼠。
+- **滑鼠鎖定被擋**：`requestPointerLock` 失敗或 `pointerlockerror` 時，提示層改成說明，並提供「改成按住拖曳轉頭」的備用模式（拖曳轉頭，沒拖動就算點擊互動，畫面下方有按鈕可切回）。
+- **設定**：右上角「設定」有視角靈敏度（0.2 到 3 倍）和視野（60 到 100 度），存在 localStorage 的 `latia-fps-settings`。
+- **光線**：天花板燈、發光物件（`room3d.js` 的 `LIGHTS`）、手機手電筒、半球光、方向光（有柔和陰影）。房間基本暗度沿用 `ROOM_DARK` 和 `flavor-logic.js` 的 `darkness`；走廊第 3 關開燈前很暗，開燈後日光燈會閃。窗外天色用 `skyColor(clock)`，星星在天亮前慢慢消失。
+- **風格**：ACES 色調映射、柔和 shadow map、霧、暈邊、圓角方塊。牆、地板、木桌用 `style/` 的材質。
+
+### three.js 怎麼放進來
+
+- 版本固定 **r170**，放在 `vendor/three.min.js`，是全域 `THREE` 的壓縮檔。沒有用 CDN。
+- 這個檔是從 npm 的 `three@0.170.0` 用 esbuild 打成 IIFE 再做三處小修改（原始檔本身是 MIT 授權）：把正則裡的 `///i` 改成 `/[/]/i`、把 XHTML 命名空間字串拆開、把 `fetch(` 和 `XMLHttpRequest` 的名字換掉。這樣 `scripts/test/dist.test.js` 的「沒有外部網址、沒有 fetch」檢查才會過；遊戲沒有用到 three.js 的載入器。
+- 重做的方法（在一個空資料夾）：`npm pack three@0.170.0`、解開，然後 `npx esbuild package/build/three.module.js --bundle --minify --format=iife --global-name=THREE --legal-comments=none --target=es2020 --outfile=three.min.js`，再套上面三處修改。
+- 開發版（`index.html`）用 `<script>` 載入 `vendor/three.min.js` 和 `style/assets-data.js`；`scripts/build.js` 會把這兩個檔直接放到 `dist/game.js` 最前面，並把 `index.html` 裡這兩個標籤拿掉，所以 `dist/` 還是只有 `index.html`、`game.js`、`assets/`。
+- `style/assets-data.js` 約 7.5 MB，是 `assets/textures/` 的貼圖轉成 base64（由 `scripts/gen-assets.js` 產生），所以 `dist/game.js` 約 8.5 MB，第一次載入會慢一兩秒。貼圖來源和授權在 `assets/LICENSES.md`（Poly Haven，CC0）。
+- `style/materials.js` 裡 `new URL(..., import.meta.url)` 的後備路徑，打包時會被換成空字串，成品只用內嵌貼圖。
 
 ## 像素字型
 

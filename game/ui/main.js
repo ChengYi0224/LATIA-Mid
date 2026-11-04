@@ -2,7 +2,7 @@
 import { loadContent, createGame, browserStorage, debugActions, isDebug } from '../core/index.js';
 import * as bus from './bus.js';
 import { initRoomsPanel } from './rooms-panel.js';
-import { initWorld } from './world/index.js';
+import { initWorld } from './world3d/index.js';
 import { initPuzzles } from './puzzles/index.js';
 import { initScreens } from './screens/index.js';
 import { initHud } from './hud/index.js';

@@ -11,6 +11,8 @@ export const ENTRY = 'game/ui/main.js';
 const CONTENT_NAMES = ['puzzles', 'deaths', 'eggs', 'endings', 'rooms', 'hints', 'texts', 'moodle'];
 // 載入順序要和原本各模組 append <link> 的順序一致（CSS 疊加順序不變）
 const STYLES_FIRST = 'game/ui/styles.css';
+const TEX_FILE = 'game/ui/world3d/style/assets-data.js'; // 內嵌貼圖（base64），設 globalThis.__STYLE_TEXTURES__
+const THREE_FILE = 'vendor/three.min.js'; // 固定版本的 three.js（見 TECH.md），直接放在 game.js 最前面，變成全域 THREE
 
 const lf = (s) => s.replace(/\r\n/g, '\n'); // 統一換行，雜湊才不會因為 git autocrlf 不同
 const read = (rel) => lf(readFileSync(join(ROOT, rel), 'utf8'));
@@ -45,6 +47,8 @@ function transform(id, src, state) {
       .map((s) => s.replace(/^(\w+)\s+as\s+(\w+)$/, '$1: $2'));
     return `const { ${items.join(', ')} } = __require(${target});`;
   });
+  // 貼圖路徑的後備（只有 http 才用得到）改成空字串；成品只用內嵌貼圖
+  out = out.replace(/new URL\('[^']*assets\/textures\/', import\.meta\.url\)\.href/g, "''");
   out = out.replace(/^export\s+(async\s+function|function)\s+(\w+)/gm, (_, kw, name) => { exportsNames.push(name); return `${kw} ${name}`; });
   out = out.replace(/^export\s+(const|let)\s+(\w+)/gm, (_, kw, name) => { exportsNames.push(name); return `${kw} ${name}`; });
 
@@ -91,7 +95,9 @@ export function build() {
 
   // 來源雜湊：所有進到成品的來源檔（含原始的 load-browser.js、index.html、全部 CSS 與資料）
   const hashInputs = [...new Set([...modules.keys(), 'game/core/load-browser.js'])].sort().map((id) => [id, read(id)]);
-  hashInputs.push(['index.html', read('index.html')], [STYLES_FIRST, read(STYLES_FIRST)]);
+  const threeSrc = `${read(THREE_FILE)}
+${read(TEX_FILE)}`;
+  hashInputs.push(['index.html', read('index.html')], [STYLES_FIRST, read(STYLES_FIRST)], [THREE_FILE, threeSrc]);
   for (const [id] of [...state.css]) hashInputs.push([id, read(id)]);
   for (const name of CONTENT_NAMES) hashInputs.push([`content/${name}.json`, read(`content/${name}.json`)]);
   const h = createHash('sha256');
@@ -107,6 +113,7 @@ export function build() {
 
   const js = `// 《天亮前交出去》成品（由 scripts/build.js 產生，請不要手改；改 game/、content/ 後重跑 npm run build）
 // source-hash: ${sourceHash}
+${threeSrc}
 (function () {
 'use strict';
 const __RAW_CONTENT = ${JSON.stringify(rawContent)};
@@ -133,6 +140,8 @@ __defs[${JSON.stringify(ENTRY)}](__require, {}).catch((e) => console.error(e)); 
   const styles = read(STYLES_FIRST).trim();
   let html = tpl
     .replace(/<link rel="stylesheet" href="game\/ui\/styles\.css">/, () => `<style>\n${styles}\n  </style>`)
+    .replace(/[ \t]*<script src="vendor\/three\.min\.js"><\/script>\r?\n/, '')
+    .replace(/[ \t]*<script src="game\/ui\/world3d\/style\/assets-data\.js"><\/script>\r?\n/, '')
     .replace(/<script type="module" src="game\/ui\/main\.js"><\/script>/, '<script src="game.js" charset="utf-8"></script>');
   if (html === tpl || html.includes('type="module"') || html.includes('styles.css')) throw new Error('index.html 轉換失敗');
   html = html.replace('<!doctype html>', `<!doctype html>\n<!-- source-hash: ${sourceHash} -->`);
@@ -144,6 +153,7 @@ __defs[${JSON.stringify(ENTRY)}](__require, {}).catch((e) => console.error(e)); 
     if (!existsSync(abs)) return;
     for (const name of readdirSync(abs).sort()) {
       const r = posix.join(rel, name);
+      if (r === 'assets/textures') continue; // 貼圖已經內嵌在 game.js（assets-data.js），不用再複製一份
       if (statSync(join(ROOT, r)).isDirectory()) walk(r);
       else if (!/\.md$/i.test(name)) files[r] = readFileSync(join(ROOT, r));
     }

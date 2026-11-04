@@ -188,7 +188,7 @@ export function initHud(ctx, root) {
     if (game.getState().phase !== 'playing') return;
     const pid = idle.check(Date.now());
     const line = pid && hints.puzzles[pid]?.idle;
-    if (line) showBubble('idle', '（自言自語）', `「${line}」`, '');
+    if (line) showBubble('idle', '自言自語', `「${line}」`, '');
   }, 1000);
 
   // ---------- 重畫 ----------

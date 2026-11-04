@@ -120,7 +120,7 @@ export function planInteraction(res, game, content) {
       if (game.isSolved(p.id)) return { do: 'text', title: p.title, text: '這關已經解開了。' };
       if (game.puzzleAvailable(p.id)) return { do: 'open_puzzle', puzzle: p.id };
       const clues = content.rooms.list.flatMap((r) => r.clues).filter((c) => c.forPuzzle === p.id);
-      return { do: 'text', title: '還不能解', text: '相關線索：\n' + (clues.map((c) => `・${c.name}：${c.text}`).join('\n') || '（無）') };
+      return { do: 'text', title: '還不能解', text: '相關線索：\n' + (clues.map((c) => `・${c.name}：${c.text}`).join('\n') || '沒有') };
     }
     default: return null;
   }

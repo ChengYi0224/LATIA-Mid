@@ -35,7 +35,7 @@ export function taskText({ puzzle, other, roomName, otherRoomName, phase }) {
   if (phase === 'finale') return '報告交了。回家，還是點開那則未讀？';
   if (!puzzle) return '出口就在眼前，走出去吧。';
   let text = `${roomName ? `${roomName}：` : ''}${puzzle.title}`;
-  if (puzzle.optional) text += '（可跳過）';
+  if (puzzle.optional) text += '　可跳過';
   if (other) text += `　或直接去${otherRoomName ? ` ${otherRoomName}：` : ' '}${other.title}`;
   return text;
 }

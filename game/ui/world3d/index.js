@@ -6,6 +6,7 @@ import { move, doorAt, doorAction, doorFront, spawnFor, resolveObject, planInter
 import { WALK_SPEED, TURN_SPEED, AIM_REACH, applyLook, walkVector, aimedObject, spawnYaw, clamp } from './fps-logic.js';
 import { promptFor, farText } from './prompt-logic.js';
 import { panelFor, quotaLine, resultFromEvent, buttonIndexForKey } from './panel-logic.js';
+import { buildSkin } from './panel-skins.js';
 import { buildRoom } from './room3d.js';
 import { createStyle } from './style/index.js';
 import { setStyle } from './kit.js';
@@ -30,6 +31,10 @@ export function initWorld(ctx, root) {
   link.rel = 'stylesheet';
   link.href = new URL('./world.css', import.meta.url).href;
   document.head.append(link);
+  const plink = document.createElement('link');   // 互動面板的專屬版面（panel-skins.js）
+  plink.rel = 'stylesheet';
+  plink.href = new URL('./panels.css', import.meta.url).href;
+  document.head.append(plink);
 
   // 房間清單面板預設收起來，只在 ?debug=1 顯示（可用右上角按鈕切換）；不動 rooms-panel 本身
   const app = document.getElementById('app');
@@ -281,9 +286,10 @@ export function initWorld(ctx, root) {
   }
   function setPanelResult(text) {
     if (!modal || !text) return;
-    modal.result.textContent = text;
-    modal.result.hidden = false;
-    if (modal.meta) modal.meta.textContent = quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0);
+    if (modal.skin?.result) modal.skin.result(text);
+    else if (modal.result) { modal.result.textContent = text; modal.result.hidden = false; }
+    if (modal.skin?.meta) modal.skin.meta(quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0));
+    else if (modal.meta) modal.meta.textContent = quotaLine(game.getState().aiQuota, content.hints?.aiQuota ?? 0);
   }
   function pressPanelButton(b) {
     if (b.stay) {
@@ -299,36 +305,55 @@ export function initWorld(ctx, root) {
     closeModal();
     if (locked()) document.exitPointerLock();
     const node = el('div', 'wd-modal');
-    const card = el('div', 'wd-card');
+    const card = el('div', `wd-card wd-skin wd-skin-${def.skin ?? 'plain'}`);
     card.setAttribute('role', 'dialog');
     card.setAttribute('aria-label', def.title);
     const head = el('div', 'wd-card-head');
     if (def.kicker) head.append(el('span', 'wd-kicker', def.kicker));
     head.append(el('strong', '', def.title));
-    card.append(head, el('p', '', def.text));
-    const meta = def.meta ? el('div', 'wd-meta', def.meta) : null;
-    if (meta) card.append(meta);
-    const result = el('div', 'wd-result');
-    result.hidden = true;
-    result.setAttribute('role', 'status');
-    card.append(result);
-    const row = el('div', 'wd-row');
-    const btns = def.buttons.map((b, i) => {
-      const btn = el('button', b.primary ? 'primary' : '');
-      btn.type = 'button';
-      btn.append(el('kbd', '', String(i + 1)), document.createTextNode(` ${b.label}`));
-      btn.addEventListener('click', () => pressPanelButton(b));
-      row.append(btn);
-      return btn;
-    });
-    card.append(row, el('div', 'wd-card-foot', `數字鍵或 Tab／Enter 選擇　Esc 取消`));
+    const x = el('button', 'wd-x', '✕');
+    x.type = 'button';
+    x.setAttribute('aria-label', '關閉（Esc）');
+    x.addEventListener('click', () => { closeModal(); tryLock(); });
+    head.append(x);
+    card.append(head);
+    // 專屬版面：由 panel-skins.js 依物件決定
+    const btns = [];
+    let resultBox = null;
+    const h = {
+      clock: game.clockText?.(),
+      btn(i, cls = '', label) {
+        const b = def.buttons[i];
+        const btn = el('button', `ps-btn ${cls} ${b.primary ? 'is-primary' : ''}`.trim());
+        btn.type = 'button';
+        btn.append(el('kbd', '', String(i + 1)), document.createTextNode(` ${label ?? b.label}`));
+        btn.addEventListener('click', () => pressPanelButton(b));
+        btns[i] = btn;
+        return btn;
+      },
+      chip(label, fn, cls = '') {
+        const btn = el('button', `ps-chip ${cls}`.trim(), label);
+        btn.type = 'button';
+        btn.addEventListener('click', fn);
+        return btn;
+      },
+      resultBox(cls = '') {
+        resultBox = el('div', `wd-result ${cls}`.trim());
+        resultBox.hidden = true;
+        resultBox.setAttribute('role', 'status');
+        return resultBox;
+      },
+    };
+    const skin = buildSkin(def, h);
+    card.append(skin.node);
+    card.append(el('div', 'wd-card-foot', '數字鍵或 Tab／Enter 選擇　Esc 取消'));
     node.append(card);
     stage.append(node);
-    modal = { node, result, meta, def, btns };
+    modal = { node, card, result: resultBox, meta: null, def, btns: btns.filter(Boolean), skin };
     keys.clear();
     // 有風險的選項（彩蛋、門）預設停在「算了」；其他停在第一顆
     const fi = def.buttons.findIndex((b) => b.focus);
-    btns[fi >= 0 ? fi : 0].focus({ preventScroll: true });
+    (btns[fi >= 0 ? fi : 0] ?? modal.btns[0])?.focus({ preventScroll: true });
   }
 
   // ---------- 互動：和 rooms-panel 清單點同一個物件送一樣的動作 ----------
@@ -363,9 +388,10 @@ export function initWorld(ctx, root) {
       if (bi >= 0) { e.preventDefault(); pressPanelButton(modal.def.buttons[bi]); return; }
       if (e.key === 'Tab') { // 焦點只在面板的按鈕之間轉
         e.preventDefault();
-        const n = modal.btns.length;
-        const cur = modal.btns.indexOf(document.activeElement);
-        modal.btns[(cur + (e.shiftKey ? n - 1 : 1)) % n].focus({ preventScroll: true });
+        const all = [...modal.card.querySelectorAll('button:not([hidden]):not(:disabled)')];
+        const n = all.length;
+        const cur = all.indexOf(document.activeElement);
+        all[(cur + (e.shiftKey ? n - 1 : 1) + n) % n].focus({ preventScroll: true });
       }
       return;
     }

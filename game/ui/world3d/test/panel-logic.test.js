@@ -68,3 +68,23 @@ test('數字鍵對應按鈕', () => {
   assert.equal(buttonIndexForKey('0', 2), -1);
   assert.equal(quotaLine(1, 3), 'AI 額度：剩餘 1／3 次');
 });
+
+test('每個面板都帶 skin；手機面板有訊息串、未解關卡有線索便條', async () => {
+  const { phoneThreads, lockedNotes } = await import('../panel-logic.js');
+  const c = {
+    puzzleById: {}, hints: { aiQuota: 3 },
+    texts: { flavor: { chatter: [{ at: 100, from: '媽媽', text: 'a' }, { at: 120, from: '媽媽', text: 'b' }, { at: 130, narration: true, text: 'n' }, { at: 900, from: '晚來', text: 'z' }] } },
+    rooms: { list: [{ clues: [{ name: '考卷', text: '58', forPuzzle: 'p1' }, { name: '別的', text: 'x', forPuzzle: 'p2' }] }] },
+  };
+  const g = game({ getState: () => ({ aiQuota: 2, clock: 200 }) });
+  const phone = panelFor({ kind: 'phone' }, null, { game: g, content: c });
+  assert.equal(phone.skin, 'phone');
+  assert.deepEqual(phone.chat, [{ from: '媽媽', messages: ['a', 'b'] }]);
+  assert.deepEqual(phoneThreads({ game: g, content: c })[0].messages.length, 2);
+  assert.deepEqual(lockedNotes('p1', { content: c }), [{ name: '考卷', text: '58' }]);
+  const res = { kind: 'puzzle', name: '筆電', puzzle: { id: 'p1', title: 'x' } };
+  assert.equal(panelFor(res, { text: '' }, { game: game({ puzzleAvailable: () => false }), content: c }).skin, 'locked');
+  assert.equal(panelFor({ kind: 'hint' }, null, { game: g, content: c }).skin, 'hint');
+  assert.equal(panelFor({ kind: 'door', name: '大門' }, null, { game: g, content: c }).skin, 'door');
+  assert.equal(panelFor({ kind: 'clue', clue: { id: 'c_x', name: 'n', text: 't' } }, null, { game: g, content: c }).skin, 'c_x');
+});

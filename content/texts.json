@@ -2,18 +2,14 @@
   "clock": { "start": 60, "dawn": 420, "perSolve": 20, "perDeath": 10 },
   "opening": [
     "00:50，401 專題教室。",
-    "三週前你說「我都可以」，所以你是組長。",
-    "報告早上 07:00 要交到 Moodle。"
+    "報告早上 07:00 要交。"
   ],
   "openingChat": {
     "title": "軟工第三組（4）",
     "messages": [
       { "from": "阿哲", "text": "抱歉，我好像把雲端那份刪了" },
-      { "from": "阿哲", "text": "（貼圖：跪下的貓）" },
       { "from": "小美", "text": "？？？" },
-      { "from": "阿明", "text": "（貼圖：OK）", "note": "上一則是三週前" },
       { "from": "你", "text": "阿哲你還在嗎", "me": true },
-      { "from": "你", "text": "阿哲？？", "me": true },
       { "sys": true, "text": "已讀 2" }
     ]
   },

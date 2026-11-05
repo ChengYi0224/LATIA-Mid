@@ -56,15 +56,16 @@ test('射線碰矩形：正對、擦邊、在後面', () => {
 });
 
 test('準星：對著筆電靠近才能互動，轉開、太遠、看天花板都不行，被裝飾擋住不算', () => {
-  const m = MAPS.r401; // 筆電在 (3,2)，椅子（裝飾）在 (3,3)
+  const m = MAPS.r401; // 筆電在 (3,2)
   const eye = { x: 2.5 * TILE, y: 2.5 * TILE };
   const yawToLaptop = yawToward(eye, { x: 3.5 * TILE, y: 2.5 * TILE });
   assert.equal(aimedObject(m, eye, yawToLaptop).id, 'laptop');
   assert.equal(aimedObject(m, eye, yawToLaptop + Math.PI), null, '背對筆電');
   assert.equal(aimedObject(m, { x: 1.5 * TILE, y: 2.5 * TILE }, yawToLaptop, 0, 6), null, '距離太遠');
   assert.equal(aimedObject(m, eye, yawToLaptop, 1.2), null, '看天花板不算');
-  const chair = { x: 3.5 * TILE, y: 4.4 * TILE }; // 椅子正下方往上看，先看到椅子
-  assert.equal(aimedObject(m, chair, 0), null);
+  const withDeco = { ...m, objects: [...m.objects, { id: 'deco_test', x: 3, y: 3, w: 1, h: 1, solid: true, deco: true }] }; // 筆電前面擺一個裝飾
+  const below = { x: 3.5 * TILE, y: 4.4 * TILE }; // 裝飾正下方往上看，先看到裝飾
+  assert.equal(aimedObject(withDeco, below, 0), null);
   const wb = m.objects.find((o) => o.id === 'c_whiteboard'); // 牆上的物件也要瞄得到
   assert.equal(aimedObject(m, { x: (wb.x + 0.5) * TILE, y: 1.5 * TILE }, 0).id, 'c_whiteboard');
 });
